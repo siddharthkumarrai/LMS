@@ -15,6 +15,8 @@ import { setupAxiosInterceptors } from './Helpers/axiosInstance.js';
 
 
 setupAxiosInterceptors(store);
+console.log(import.meta.env.VITE_BACKEND_API_URL);
+
 
 
 createRoot(document.getElementById('root')).render(

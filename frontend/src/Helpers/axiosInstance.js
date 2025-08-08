@@ -1,9 +1,9 @@
 import axios from "axios";
-import { logout } from "../redux/features/auth/authSlice"; // Action import karna theek hai
+import { logout } from "../redux/features/auth/authSlice";
 import toast from "react-hot-toast";
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:4000/api/v1", // Apna backend URL check kar lein
+    baseURL: import.meta.env.VITE_BACKEND_API_URL,
     withCredentials: true
 });
 

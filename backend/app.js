@@ -24,6 +24,39 @@ app.use(cors({
 
 app.use(morgan("dev"));
 
+// =======================================================
+// RENDER.COM HEALTH CHECK ROUTE (Server ko zinda rakhne ke liye)
+// =======================================================
+app.get("/render-alive", (req, res) => {
+    const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+    const htmlResponse = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Server Status</title>
+            <style>
+                body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #2c3e50; color: white; }
+                .card { text-align: center; padding: 50px; background-color: #34495e; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+                .status { color: #2ecc71; font-size: 28px; font-weight: bold; }
+                .msg { font-size: 18px; margin-top: 10px; }
+                .time { font-size: 12px; color: #95a5a6; margin-top: 25px; }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="status">● Online</div>
+                <div class="msg">Backend server is up and running!</div>
+                <div class="time">Last Checked: ${timestamp} (IST)</div>
+            </div>
+        </body>
+        </html>
+    `;
+    res.status(200).send(htmlResponse);
+});
+// =======================================================
+
+
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/courses",courseRoutes)
 app.use("/api/v1/payments",paymentRoutes)

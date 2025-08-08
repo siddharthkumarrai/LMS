@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { CheckCircle2 } from "lucide-react";       // कोई भी icon-pkg काम करेगी
+import { CheckCircle2 } from "lucide-react";
 
 const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
 
-  /* 5 s बाद ऑटो-रिडायरेक्ट */
   useEffect(() => {
     const id = setTimeout(() => navigate("/my-courses"), 5000);
     return () => clearTimeout(id);
