@@ -27,27 +27,23 @@ export const getRazorPayId = createAsyncThunk(
   }
 );
 
-// Async thunk to create payment order (purchase subscription) for given courseId
-export const purchaseCourseBundle = createAsyncThunk(
-  "razorpay/purchaseCourseBundle",
+// Async thunk for free course enrollment
+export const enrollFreeCourse = createAsyncThunk(
+  "razorpay/enrollFreeCourse",
   async (courseId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/payments/subscribe/${courseId}`);
+      const response = await axiosInstance.post(`/payments/enroll-free/${courseId}`);
       return response.data;
     } catch (error) {
-      // ✅ Safe error handling
-      let errorMessage = "Failed to create order";
+      let errorMessage = "Failed to enroll in free course";
       
       if (error.response) {
-        // Server responded with error status
         console.error("API Error:", error.response.data);
         errorMessage = error.response.data?.message || errorMessage;
       } else if (error.request) {
-        // Request made but no response
         console.error("Network Error:", error.request);
         errorMessage = "No response from server. Check your connection.";
       } else {
-        // Request setup error
         console.error("Request Error:", error.message);
         errorMessage = error.message;
       }
@@ -58,7 +54,41 @@ export const purchaseCourseBundle = createAsyncThunk(
   }
 );
 
-// Async thunk to verify payment after Razorpay payment success
+// Updated async thunk to create payment order with optional amount and coupon
+export const purchaseCourseBundle = createAsyncThunk(
+  "razorpay/purchaseCourseBundle",
+  async ({ courseId, amount, couponCode }, { rejectWithValue }) => {
+    try {
+      const payload = {};
+      if (amount !== undefined) payload.amount = amount;
+      if (couponCode) payload.couponCode = couponCode;
+      
+      const response = await axiosInstance.post(
+        `/payments/subscribe/${courseId}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      let errorMessage = "Failed to create order";
+      
+      if (error.response) {
+        console.error("API Error:", error.response.data);
+        errorMessage = error.response.data?.message || errorMessage;
+      } else if (error.request) {
+        console.error("Network Error:", error.request);
+        errorMessage = "No response from server. Check your connection.";
+      } else {
+        console.error("Request Error:", error.message);
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Updated async thunk to verify payment with coupon information
 export const verifyUserPayment = createAsyncThunk(
   "razorpay/verifyUserPayment",
   async (data, { rejectWithValue }) => {
@@ -68,6 +98,8 @@ export const verifyUserPayment = createAsyncThunk(
         razorpay_order_id: data.razorpay_order_id,
         razorpay_signature: data.razorpay_signature,
         courseId: data.courseId,
+        couponCode: data.couponCode,
+        discountAmount: data.discountAmount,
       });
       return response.data;
     } catch (error) {
@@ -101,7 +133,7 @@ const razorpaySlice = createSlice({
   name: "razorpay",
   initialState,
   reducers: {
-    // Optional synchronous reducers, e.g., reset state, can be added here
+    // Optional synchronous reducers
     resetPaymentState: (state) => {
       state.isPaymentVerified = false;
       state.subscription_id = "";
@@ -123,6 +155,20 @@ const razorpaySlice = createSlice({
       .addCase(getRazorPayId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to get Razorpay key";
+      })
+
+      // enrollFreeCourse lifecycle handlers
+      .addCase(enrollFreeCourse.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(enrollFreeCourse.fulfilled, (state) => {
+        state.loading = false;
+        state.isPaymentVerified = true;
+      })
+      .addCase(enrollFreeCourse.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to enroll in free course";
       })
 
       // purchaseCourseBundle lifecycle handlers

@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
-import { getRazorPayId, purchaseCourseBundle, verifyUserPayment } from "../redux/features/razorpay/razorpaySlice";
+import {
+  getRazorPayId,
+  purchaseCourseBundle,
+  verifyUserPayment,
+  enrollFreeCourse
+} from "../redux/features/razorpay/razorpaySlice";
 import axiosInstance from "../Helpers/axiosInstance";
 
 interface CourseType {
@@ -54,6 +59,7 @@ const CheckoutPage: React.FC = () => {
   const [isPaying, setIsPaying] = useState(false);
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [appliedCouponCode, setAppliedCouponCode] = useState("");
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -72,6 +78,7 @@ const CheckoutPage: React.FC = () => {
       }
     }
     if (courseId) fetchCourse();
+    // Only load Razorpay key if we might need it
     dispatch(getRazorPayId());
   }, [courseId, navigate, dispatch]);
 
@@ -79,11 +86,33 @@ const CheckoutPage: React.FC = () => {
   const total = subtotal - discount;
 
   const applyCoupon = () => {
-    if (coupon.trim().toUpperCase() === "PW2025") {
-      setDiscount(Math.floor(subtotal * 1));
-      toast.success("Coupon applied: 100% discount");
+
+    // Step 1: available coupons
+    const availableCoupons = {
+      'PW2025': { percentage: 10 }, // 10% discount
+      'DIWALI50': { percentage: 50 }, // 50% discount
+      'SALE100': { percentage: 100 } // 100% discount
+    };
+
+    const trimmedCoupon = coupon.trim().toUpperCase();
+
+    // Step 2: coupon exist
+    const couponData = availableCoupons[trimmedCoupon];
+
+    if (couponData) {
+      const discountPercentage = couponData.percentage;
+      const discountAmount = Math.floor(subtotal * (discountPercentage / 100));
+
+      setDiscount(discountAmount);
+      setAppliedCouponCode(trimmedCoupon);
+
+      // Step 3: Dynamic toast message banao
+      toast.success(`Coupon "${trimmedCoupon}" applied: ${discountPercentage}% discount`);
+
     } else {
+      // Coupon nahi mila
       setDiscount(0);
+      setAppliedCouponCode("");
       toast.error("Invalid coupon code");
     }
   };
@@ -94,14 +123,47 @@ const CheckoutPage: React.FC = () => {
       navigate("/login");
       return;
     }
-    const sdkLoaded = await loadRazorpayScript();
-    if (!sdkLoaded) {
-      toast.error("Failed to load Razorpay SDK.");
-      return;
-    }
+
     setIsPaying(true);
+
     try {
-      const orderDataAction = await dispatch(purchaseCourseBundle(courseId!)).unwrap();
+      // Check if course is free or total is 0 after discount
+      if (total <= 0) {
+        // Direct free enrollment - no Razorpay needed
+        try {
+          await dispatch(enrollFreeCourse(courseId!)).unwrap();
+          toast.success("You have been enrolled for free!");
+          navigate(`/course/${courseId}/player`);
+        } catch (enrollError: any) {
+          const msg = typeof enrollError === "string" ? enrollError : "Free enrollment failed";
+
+          if (msg.toLowerCase().includes("already subscribed") || msg.toLowerCase().includes("already enrolled")) {
+            toast.success("You already own this course. Redirecting...");
+            navigate(`/course/${courseId}/player`);
+          } else {
+            toast.error(msg);
+          }
+        }
+        setIsPaying(false);
+        return;
+      }
+
+      // Paid flow - load Razorpay and process payment
+      const sdkLoaded = await loadRazorpayScript();
+      if (!sdkLoaded) {
+        toast.error("Failed to load Razorpay SDK.");
+        setIsPaying(false);
+        return;
+      }
+
+      // Create order with discounted amount
+      const orderDataAction = await dispatch(
+        purchaseCourseBundle({
+          courseId: courseId!,
+          amount: total, // Send the discounted amount
+          couponCode: appliedCouponCode || undefined
+        })
+      ).unwrap();
 
       if (!orderDataAction.success) throw new Error("Order creation failed");
 
@@ -110,7 +172,7 @@ const CheckoutPage: React.FC = () => {
         amount: orderDataAction.order.amount,
         currency: "INR",
         name: course?.title,
-        description: "Course Purchase",
+        description: appliedCouponCode ? `Course Purchase (Coupon: ${appliedCouponCode})` : "Course Purchase",
         image: course?.thumbnail.thumbnailUrl,
         order_id: orderDataAction.order.id,
         handler: async (response: any) => {
@@ -121,6 +183,8 @@ const CheckoutPage: React.FC = () => {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 courseId,
+                couponCode: appliedCouponCode || undefined,
+                discountAmount: discount || undefined,
               })
             ).unwrap();
             toast.success("Payment successful! Redirecting...");
@@ -142,6 +206,12 @@ const CheckoutPage: React.FC = () => {
         theme: {
           color: "#4F46E5",
         },
+        notes: {
+          courseId: courseId,
+          couponCode: appliedCouponCode || "",
+          originalPrice: subtotal,
+          discountAmount: discount,
+        }
       };
 
       // @ts-ignore
@@ -167,7 +237,7 @@ const CheckoutPage: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="animate-pulse space-y-6 sm:space-y-8">
           <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 sm:w-64 mx-auto"></div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
@@ -182,7 +252,7 @@ const CheckoutPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 space-y-4">
               <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
               <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
@@ -240,9 +310,8 @@ const CheckoutPage: React.FC = () => {
                       <img
                         src={course.thumbnail.thumbnailUrl}
                         alt={course.title}
-                        className={`w-full h-full object-cover transition-all duration-500 ${
-                          isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
-                        } group-hover:scale-105`}
+                        className={`w-full h-full object-cover transition-all duration-500 ${isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
+                          } group-hover:scale-105`}
                         onLoad={() => setIsImageLoaded(true)}
                         onError={(e) => {
                           e.currentTarget.src = '/api/placeholder/400/250';
@@ -255,8 +324,8 @@ const CheckoutPage: React.FC = () => {
                     {/* Price overlay */}
                     <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
                       <span className={`px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-sm sm:text-base lg:text-lg font-bold backdrop-blur-sm ${course.price === 0
-                          ? 'bg-green-100/90 text-green-800 dark:bg-green-900/90 dark:text-green-200'
-                          : 'bg-blue-100/90 text-blue-800 dark:bg-blue-900/90 dark:text-blue-200'
+                        ? 'bg-green-100/90 text-green-800 dark:bg-green-900/90 dark:text-green-200'
+                        : 'bg-blue-100/90 text-blue-800 dark:bg-blue-900/90 dark:text-blue-200'
                         }`}>
                         {course.price === 0 ? 'Free' : `₹${course.price.toLocaleString('en-IN')}`}
                       </span>
@@ -275,8 +344,8 @@ const CheckoutPage: React.FC = () => {
                   {course.description && (
                     <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl flex-1 min-h-0">
                       <p className="text-xs sm:text-sm lg:text-base text-gray-700 dark:text-gray-300 leading-relaxed break-words hyphens-auto overflow-hidden">
-                        {course.description.length > 150 
-                          ? `${course.description.substring(0, 150)}...` 
+                        {course.description.length > 150
+                          ? `${course.description.substring(0, 150)}...`
                           : course.description}
                       </p>
                       {course.description.length > 150 && (
@@ -366,8 +435,8 @@ const CheckoutPage: React.FC = () => {
                       disabled={!!discount}
                       onClick={applyCoupon}
                       className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm transition-all min-h-[44px] whitespace-nowrap ${discount
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 cursor-not-allowed"
-                          : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 cursor-not-allowed"
+                        : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
                         }`}
                       type="button"
                     >
@@ -379,7 +448,7 @@ const CheckoutPage: React.FC = () => {
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      Coupon "PW2025" applied successfully!
+                      Coupon "{appliedCouponCode}" applied successfully!
                     </div>
                   )}
                 </div>
@@ -415,8 +484,12 @@ const CheckoutPage: React.FC = () => {
                   {isPaying ? (
                     <>
                       <div className="animate-spin h-4 sm:h-5 w-4 sm:w-5 border-2 border-white border-t-transparent rounded-full"></div>
-                      <span className="hidden sm:inline">Processing Payment...</span>
-                      <span className="sm:hidden">Processing...</span>
+                      <span className="hidden sm:inline">
+                        {total === 0 ? "Enrolling..." : "Processing Payment..."}
+                      </span>
+                      <span className="sm:hidden">
+                        {total === 0 ? "Enrolling..." : "Processing..."}
+                      </span>
                     </>
                   ) : total === 0 ? (
                     <>
@@ -441,7 +514,7 @@ const CheckoutPage: React.FC = () => {
                 <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                 </svg>
-                <span>Secure payment powered by Razorpay</span>
+                <span>{total === 0 ? 'Secure enrollment process' : 'Secure payment powered by Razorpay'}</span>
               </div>
             </div>
           </div>

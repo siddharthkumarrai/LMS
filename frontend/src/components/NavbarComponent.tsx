@@ -88,7 +88,7 @@ export function NavbarComponent() {
       name: "My Purchases",
       icon: "🛒",
       action: () => {
-        navigate("/purchases");
+        navigate("/my-courses");
         setIsProfileDropdownOpen(false);
         setIsMobileMenuOpen(false);
       },
