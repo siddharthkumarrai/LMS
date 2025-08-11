@@ -8,6 +8,7 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import courseRoutes from "./routes/course.route.js";
 import Razorpay from "razorpay"
 import paymentRoutes from "./routes/payment.route.js";
+import statsRoutes from './routes/stats.routes.js';
 
 
 const app = express();
@@ -130,9 +131,12 @@ app.get("/render-alive", (req, res) => {
 // =======================================================
 
 
+
+
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/courses",courseRoutes)
 app.use("/api/v1/payments",paymentRoutes)
+app.use('/api/v1/stats', statsRoutes);
 
 app.use("/ping",(req,res)=>{
     res.status(200).send("/PONG");

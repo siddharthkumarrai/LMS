@@ -21,7 +21,7 @@ interface Lecture {
     _id: string;
     name: string;
     duration: string;
-    lecture: { 
+    lecture: {
         lectureId: string;
         lectureUrl: string;
     };
@@ -87,29 +87,29 @@ export const fetchMySubscribedCourses = createAsyncThunk(
 export const fetchAllCourses = createAsyncThunk(
     "courses/fetchAll",
     async (
-        { searchQuery, page = 1, limit = 10 }: { 
-            searchQuery?: string; 
-            page?: number; 
-            limit?: number; 
+        { searchQuery, page = 1, limit = 10 }: {
+            searchQuery?: string;
+            page?: number;
+            limit?: number;
         } = {},
         { rejectWithValue }
     ) => {
         try {
             console.log('🚀 Fetching courses with params:', { searchQuery, page, limit });
-            
+
             let url = `/courses?page=${page}&limit=${limit}`;
             if (searchQuery && searchQuery.trim()) {
                 url += `&search=${encodeURIComponent(searchQuery.trim())}`;
             }
-            
+
             console.log('📡 API URL:', url);
-            
+
             const response = await axiosInstance.get(url);
             console.log('✅ Raw API response:', response.data);
-            
+
             // Handle different possible response structures
             const responseData = response.data;
-            let courses:any = [];
+            let courses: any = [];
             let totalPages = 0;
             let currentPage = 1;
             let totalCourses = 0;
@@ -152,12 +152,12 @@ export const fetchAllCourses = createAsyncThunk(
         } catch (error: any) {
             console.error('❌ Error fetching courses:', error);
             const errorMessage = error?.response?.data?.message || "Failed to fetch courses.";
-            
+
             // Only show toast for actual errors, not for empty results
             if (error?.response?.status !== 404) {
                 toast.error(errorMessage);
             }
-            
+
             return rejectWithValue(errorMessage);
         }
     }
@@ -213,6 +213,24 @@ export const deleteLectureFromCourse = createAsyncThunk(
         }
     }
 );
+
+// Add this to your existing async thunks
+export const deleteCourse = createAsyncThunk(
+    "courses/deleteCourse",
+    async (courseId: string, { rejectWithValue }) => {
+        try {
+            console.log('Deleting course with ID:', courseId);
+            const response = await axiosInstance.delete(`/courses/${courseId}`);
+            toast.success("Course deleted successfully!");
+            return courseId; // Return the deleted course ID
+        } catch (error: any) {
+            const errorMessage = error?.response?.data?.message || "Failed to delete course.";
+            toast.error(errorMessage);
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
+
 
 const courseSlice = createSlice({
     name: "courses",
@@ -285,7 +303,7 @@ const courseSlice = createSlice({
                 state.currentPage = action.payload.currentPage || 1;
                 state.totalCourses = action.payload.totalCourses || 0;
                 state.error = null;
-                
+
                 console.log('📝 State updated - allCourses length:', state.allCourses.length);
             })
             .addCase(fetchAllCourses.rejected, (state, action) => {
@@ -315,36 +333,55 @@ const courseSlice = createSlice({
                 state.error = action.payload as string;
             })
 
-            // Add Lecture
-            .addCase(addLectureToCourse.pending, (state) => {
+            // Delete Course Case
+            .addCase(deleteCourse.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
-            .addCase(addLectureToCourse.fulfilled, (state, action) => {
+            .addCase(deleteCourse.fulfilled, (state, action) => {
                 state.loading = false;
-                if (state.currentCourse && action.payload.lectures) {
-                    state.currentCourse.lectures = action.payload.lectures;
-                }
+                // Remove the deleted course from myCourses array
+                state.myCourses = state.myCourses.filter(course => course._id !== action.payload);
+                // Also remove from allCourses if it exists there
+                state.allCourses = state.allCourses.filter(course => course._id !== action.payload);
+                state.error = null;
             })
-            .addCase(addLectureToCourse.rejected, (state, action) => {
+            .addCase(deleteCourse.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
 
-            // Delete Lecture
-            .addCase(deleteLectureFromCourse.pending, (state) => {
+
+            // Add Lecture
+            .addCase(addLectureToCourse.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(deleteLectureFromCourse.fulfilled, (state, action) => {
-                state.loading = false;
-                if (state.currentCourse) {
-                    state.currentCourse.lectures = action.payload || [];
-                }
-            })
-            .addCase(deleteLectureFromCourse.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload as string;
-            });
-    },
+        .addCase(addLectureToCourse.fulfilled, (state, action) => {
+            state.loading = false;
+            if (state.currentCourse && action.payload.lectures) {
+                state.currentCourse.lectures = action.payload.lectures;
+            }
+        })
+        .addCase(addLectureToCourse.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        })
+
+        // Delete Lecture
+        .addCase(deleteLectureFromCourse.pending, (state) => {
+            state.loading = true;
+        })
+        .addCase(deleteLectureFromCourse.fulfilled, (state, action) => {
+            state.loading = false;
+            if (state.currentCourse) {
+                state.currentCourse.lectures = action.payload || [];
+            }
+        })
+        .addCase(deleteLectureFromCourse.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload as string;
+        });
+},
 });
 
 export const { clearAllCourses, clearError, resetLoading } = courseSlice.actions;

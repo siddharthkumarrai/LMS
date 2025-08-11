@@ -8,9 +8,7 @@ const port = process.env.PORT || 8081
 app.listen(port,async function(){
     console.log('====================================');
     await connectDB()
-    cloudinaryConfig()
-    console.log(process.env.SECRET);
-    
+    cloudinaryConfig()    
     console.log(`app is listining on port http://localhost:${port}`);
     console.log('====================================');
 })

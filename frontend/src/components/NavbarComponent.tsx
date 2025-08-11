@@ -70,7 +70,7 @@ export function NavbarComponent() {
       name: "My Dashboard",
       icon: "📊",
       action: () => {
-        navigate("/course/create");
+        navigate("/dashboard");
         setIsProfileDropdownOpen(false);
         setIsMobileMenuOpen(false);
       },
@@ -80,15 +80,6 @@ export function NavbarComponent() {
       icon: "👤",
       action: () => {
         navigate("/me");
-        setIsProfileDropdownOpen(false);
-        setIsMobileMenuOpen(false);
-      },
-    },
-    {
-      name: "My Purchases",
-      icon: "🛒",
-      action: () => {
-        navigate("/my-courses");
         setIsProfileDropdownOpen(false);
         setIsMobileMenuOpen(false);
       },

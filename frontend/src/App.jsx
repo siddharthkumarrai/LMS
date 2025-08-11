@@ -30,6 +30,7 @@ import MyCoursesPage from './pages/MyCourses';
 import ManageLectures from './pages/ManageLectures';
 import AllCourses from './pages/AllCourses';
 import EnrolledStudentsPage from './pages/EnrolledStudentsPage ';
+import { ModernHelpCenter } from './pages/ModernHelpCenter';
 
 function App() {
   return (
@@ -61,6 +62,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/me" element={<ProfilePage />} />
           <Route path="/my-courses" element={<MyCoursesPage />} />
+          <Route path="/help-center" element={<ModernHelpCenter />} />
           
           {/* NEW: Change Password Route - Only for logged in users */}
           <Route path="/change-password" element={<ChangePassword />} />

@@ -42,7 +42,7 @@ const SidebarSection = ({ title, children, className }) => (
 // Main Sidebar Component
 export default function LMSSidebar() {
     // Redux state
-    const { role, data: userData } = useSelector((state) => state.auth);
+    const { role, data: userData } = useSelector((state:any) => state.auth);
     
     // Local state
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -57,21 +57,16 @@ export default function LMSSidebar() {
     // Admin navigation links
     const adminLinks = {
         mainMenu: [
-            { label: "Dashboard", href: "/", icon: <Home className="h-5 w-5" /> },
-            { label: "Analytics", href: "/analytics", icon: <BarChart3 className="h-5 w-5" /> },
+            { label: "Dashboard", href: "/dashboard", icon: <Home className="h-5 w-5" /> },
             { label: "My Profile", href: "/me", icon: <CircleUser className="h-5 w-5" /> },
         ],
         academicManagement: [
             { label: "Create Course", href: "/course/create", icon: <FileText className="h-5 w-5" /> },
             { label: "Students", href: "/students", icon: <Users className="h-5 w-5" /> },
-            { label: "Library", href: "/library", icon: <Library className="h-5 w-5" /> },
-            { label: "Courses", href: "/courses", icon: <BookOpen className="h-5 w-5" /> },
-            { label: "Professors", href: "/professors", icon: <UserCheck className="h-5 w-5" /> },
-            { label: "Department", href: "/department", icon: <Building className="h-5 w-5" /> },
-            { label: "Financial Record", href: "/financial", icon: <CreditCard className="h-5 w-5" /> },
+            { label: "My Courses", href: "/my-courses", icon: <BookOpen className="h-5 w-5" /> },
         ],
         otherMenu: [
-            { label: "Help & Center", href: "/help", icon: <HelpCircle className="h-5 w-5" /> },
+            { label: "Help & Center", href: "/help-center", icon: <HelpCircle className="h-5 w-5" /> },
             { label: "Settings", href: "/settings", icon: <Settings className="h-5 w-5" /> },
         ]
     };
@@ -79,13 +74,12 @@ export default function LMSSidebar() {
     // Regular user navigation links
     const userLinks = {
         mainMenu: [
-            { label: "Dashboard", href: "/", icon: <Home className="h-5 w-5" /> },
+            { label: "Dashboard", href: "/dashboard", icon: <Home className="h-5 w-5" /> },
             { label: "My Profile", href: "/me", icon: <CircleUser className="h-5 w-5" /> },
             { label: "My Courses", href: "/my-courses", icon: <MessageSquare className="h-5 w-5" /> },
-            { label: "Library", href: "/library", icon: <Library className="h-5 w-5" /> },
         ],
         otherMenu: [
-            { label: "Help & Center", href: "/help", icon: <HelpCircle className="h-5 w-5" /> },
+            { label: "Help & Center", href: "/help-center", icon: <HelpCircle className="h-5 w-5" /> },
             { label: "Settings", href: "/settings", icon: <Settings className="h-5 w-5" /> },
         ]
     };
@@ -181,8 +175,8 @@ export default function LMSSidebar() {
                         <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {userData?.name || "User"}
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {role ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase() : "User"}
+                        <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {userData?.email || "User"}
                         </span>
                     </div>
                 </div>

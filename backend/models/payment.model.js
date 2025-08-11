@@ -32,7 +32,11 @@ const paymentSchema = mongoose.Schema({
         enum: ['success', 'failed'],
         default: 'success'
     }
-})
+},
+{
+    timestamps: true
+}
+)
 
 const PaymentModel = mongoose.model("Payment",paymentSchema)
 
