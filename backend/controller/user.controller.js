@@ -343,6 +343,76 @@ export const adminRegister = function (req, res, next) {
 
 
 
+// Get all enrolled students with their course details
+
+const getEnrolledStudents = async function (req, res, next) {
+    try {
+        console.log('🔍 Fetching enrolled students...');
+
+        // Query for users with role 'user' and non-empty subscriptions array
+        const enrolledUsers = await UserModel.find({
+            role: 'user',
+            subscriptions: { $exists: true, $not: { $size: 0 } }
+        })
+        .select('name email subscriptions') // Only select necessary user fields
+        .populate({
+            path: 'subscriptions',
+            select: 'title category price', // Only select required course fields
+            match: { _id: { $exists: true } } // Ensure valid course references
+        })
+        .lean(); // Use lean() for better performance since we're only reading
+
+        console.log(`📊 Found ${enrolledUsers.length} users with subscriptions`);
+
+        // Transform the data into the required flat array structure
+        const enrollmentRecords = [];
+
+        enrolledUsers.forEach(user => {
+            // Handle cases where subscriptions might have null/invalid references
+            const validSubscriptions = user.subscriptions.filter(course => course !== null);
+            
+            validSubscriptions.forEach(course => {
+                enrollmentRecords.push({
+                    student: {
+                        name: user.name,
+                        email: user.email
+                    },
+                    course: {
+                        title: course.title,
+                        category: course.category,
+                        price: course.price
+                    }
+                });
+            });
+        });
+
+        console.log(`✅ Generated ${enrollmentRecords.length} enrollment records`);
+
+        // Check if no enrolled students found
+        if (enrollmentRecords.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No enrolled students found"
+            });
+        }
+
+        // Return successful response with enrollment data
+        return res.status(200).json({
+            success: true,
+            message: `Found ${enrollmentRecords.length} enrollment records`,
+            data: enrollmentRecords,
+            totalStudents: enrolledUsers.length,
+            totalEnrollments: enrollmentRecords.length
+        });
+
+    } catch (error) {
+        console.error('❌ Error in getEnrolledStudents:', error);
+        return next(error);
+    }
+};
+
+
+
 export {
     register,
     login,
@@ -352,4 +422,5 @@ export {
     resetPassword,
     changePassword,
     updateProfile,
+    getEnrolledStudents
 }

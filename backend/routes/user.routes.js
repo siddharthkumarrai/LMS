@@ -1,6 +1,6 @@
 import {Router} from "express";
-import { login, register, logout, forgotPassword, resetPassword, changePassword, updateProfile, adminRegister, getMyProfile } from "../controller/user.controller.js";
-import {isLoggedIn }from "../middlewares/auth.middleware.js";
+import { login, register, logout, forgotPassword, resetPassword, changePassword, updateProfile, adminRegister, getMyProfile, getEnrolledStudents } from "../controller/user.controller.js";
+import {authorizedRoles, isLoggedIn }from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.fileupload.middleware.js";
 
 const userRoutes = Router();
@@ -16,6 +16,8 @@ userRoutes.put("/update-profile",isLoggedIn,upload.single('avatar'),updateProfil
 
 // ADMIN USER
 userRoutes.post("/register/admin",upload.single('avatar'),adminRegister);
+
+userRoutes.get('/enrollments', isLoggedIn, authorizedRoles('admin'), getEnrolledStudents);
 
 
 

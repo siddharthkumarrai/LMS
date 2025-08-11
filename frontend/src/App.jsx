@@ -29,6 +29,7 @@ import ProfilePage from './pages/ProfilePage';
 import MyCoursesPage from './pages/MyCourses';
 import ManageLectures from './pages/ManageLectures';
 import AllCourses from './pages/AllCourses';
+import EnrolledStudentsPage from './pages/EnrolledStudentsPage ';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
           
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/course/create" element={<CreateCourse />} />
+            <Route path="/students" element={<EnrolledStudentsPage />} />
             <Route path="/course/manage-lectures/:courseId" element={<ManageLectures />} />
           </Route>
         </Route>
