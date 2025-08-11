@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import './AllCourses.css'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { fetchAllCourses } from '../redux/features/courses/courseSlice';
