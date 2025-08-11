@@ -94,6 +94,20 @@ export const changePassword = createAsyncThunk(
     }
 );
 
+export const verifyUser = createAsyncThunk(
+    "auth/verify",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.get("user/me");
+            return response.data.user; // Agar token valid hai, toh user data return karo
+        } catch (error: any) {
+            // Agar token invalid/expire hai, toh backend 401 error dega
+            // Hum yahan se logout trigger karenge
+            return rejectWithValue("Token is invalid or expired.");
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -175,6 +189,19 @@ const authSlice = createSlice({
             })
             .addCase(changePassword.rejected, (state) => {
                 state.loading = false;
+            })
+
+            .addCase(verifyUser.fulfilled, (state, action: PayloadAction<UserProfile>) => {
+                state.isLoggedIn = true;
+                state.data = action.payload;
+                state.role = action.payload.role;
+            })
+            .addCase(verifyUser.rejected, (state) => {
+                state.isLoggedIn = false;
+                state.data = null;
+                state.role = "";
+                state.token = null;
+                localStorage.clear();
             });
     },
 });

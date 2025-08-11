@@ -31,8 +31,19 @@ import ManageLectures from './pages/ManageLectures';
 import AllCourses from './pages/AllCourses';
 import EnrolledStudentsPage from './pages/EnrolledStudentsPage ';
 import { ModernHelpCenter } from './pages/ModernHelpCenter';
+import { verifyUser } from './redux/features/auth/authSlice';
+import SettingsPage from './pages/SettingsPage';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 function App() {
+
+  const dispatch = useDispatch()
+
+    useEffect(() => {
+        dispatch(verifyUser());
+    }, [dispatch]);
+
   return (
     <Routes>
       {/* 1. Public Routes (jinke upar Navbar chahiye) */}
@@ -63,6 +74,7 @@ function App() {
           <Route path="/me" element={<ProfilePage />} />
           <Route path="/my-courses" element={<MyCoursesPage />} />
           <Route path="/help-center" element={<ModernHelpCenter />} />
+          <Route path="/settings" element={<SettingsPage />} />
           
           {/* NEW: Change Password Route - Only for logged in users */}
           <Route path="/change-password" element={<ChangePassword />} />
