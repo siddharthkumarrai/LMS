@@ -23,9 +23,9 @@ export function NavbarComponent() {
   const { isLoggedIn, data: user } = useSelector((state:any) => state.auth);
 
   const navItems = [
-    { name: "Features", link: "#features" },
-    { name: "Pricing", link: "#pricing" },
-    { name: "Contact", link: "#contact" },
+    { name: "Courses", link: "/all-courses" },
+    { name: "Our Students", link: "/" },
+    { name: "Contact", link: "/contact" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

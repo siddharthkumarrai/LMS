@@ -117,7 +117,7 @@ const InteractiveLearningSection: React.FC = () => {
   };
 
   return (
-    <section className="relative w-full bg-gradient-to-br from-gray-50 to-white py-16 md:py-20 overflow-hidden">
+    <section className="relative w-full bg-gradient-to-br from-gray-50 to-white py-8 md:py-20 overflow-hidden">
 
       {/* Light Wavy Grid Background */}
       <div className="absolute inset-0 pointer-events-none">
@@ -172,7 +172,7 @@ const InteractiveLearningSection: React.FC = () => {
       </div>
 
       {/* Section padding maintained */}
-      <div className="relative container mx-auto px-4 lg:px-8 py-24">
+      <div className="relative container mx-auto px-4 lg:px-8">
 
         {/* Section Header */}
         <motion.div

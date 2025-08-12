@@ -91,7 +91,7 @@ const MasterclassSection: React.FC = () => {
   return (
     <section 
       ref={sectionRef} 
-      className="w-full bg-gray-50 mb-0 py-16 sm:py-20 md:py-24 lg:py-28 xl:py-32 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-hidden"
+      className="w-full bg-gray-50 py-16 sm:py-20 md:py-24 lg:py-28 xl:py-32 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-hidden mb-[-6rem]"
     >
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-12 sm:gap-16 lg:gap-20">

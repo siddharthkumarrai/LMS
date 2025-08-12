@@ -99,15 +99,15 @@ const ChangePasswordForm = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Old Password</label>
-                    <input type="password" name="oldPassword" value={passwords.oldPassword} onChange={handleInputChange} className="mt-1 block w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required />
+                    <input type="password" name="oldPassword" value={passwords.oldPassword} onChange={handleInputChange} className="text-white mt-1 block w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
-                    <input type="password" name="newPassword" value={passwords.newPassword} onChange={handleInputChange} className="mt-1 block w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required />
+                    <input type="password" name="newPassword" value={passwords.newPassword} onChange={handleInputChange} className="text-white mt-1 block w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm New Password</label>
-                    <input type="password" name="confirmPassword" value={passwords.confirmPassword} onChange={handleInputChange} className="mt-1 block w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required />
+                    <input type="password" name="confirmPassword" value={passwords.confirmPassword} onChange={handleInputChange} className="text-white mt-1 block w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required />
                 </div>
                 <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700">Update Password</button>
             </form>
@@ -136,11 +136,10 @@ const SettingsPage = () => {
     const TabButton = ({ id, label, icon }) => (
         <button
             onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-3 w-full p-3 text-left rounded-md transition-colors ${
-                activeTab === id
-                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
-                : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
-            }`}
+            className={`flex items-center gap-3 w-full p-3 text-left rounded-md transition-colors ${activeTab === id
+                    ? 'bg-red-500 text-white' // अगर active है तो लाल background और सफेद text
+                    : 'bg-green-500 text-white'
+                }`}
         >
             {icon}
             <span className="font-medium">{label}</span>

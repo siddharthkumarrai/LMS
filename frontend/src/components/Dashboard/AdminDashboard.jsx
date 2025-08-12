@@ -56,7 +56,7 @@ export const AdminDashboard = () => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Invalid Date';
-            
+
             return date.toLocaleDateString('en-IN', {
                 day: '2-digit',
                 month: '2-digit',
@@ -81,10 +81,10 @@ export const AdminDashboard = () => {
     };
 
     const cardVariants = {
-        hidden: { 
-            opacity: 0, 
+        hidden: {
+            opacity: 0,
             y: 50,
-            scale: 0.9 
+            scale: 0.9
         },
         visible: {
             opacity: 1,
@@ -127,8 +127,8 @@ export const AdminDashboard = () => {
 
     const loadingVariants = {
         hidden: { opacity: 0, scale: 0.8 },
-        visible: { 
-            opacity: 1, 
+        visible: {
+            opacity: 1,
             scale: 1,
             transition: { duration: 0.5 }
         }
@@ -137,7 +137,7 @@ export const AdminDashboard = () => {
     // Loading state
     if (isLoading) {
         return (
-            <motion.div 
+            <motion.div
                 className="min-h-screen relative overflow-hidden"
                 variants={loadingVariants}
                 initial="hidden"
@@ -164,7 +164,7 @@ export const AdminDashboard = () => {
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                         className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mb-6"
                     />
-                    <motion.p 
+                    <motion.p
                         className="text-xl text-gray-600 dark:text-gray-400 font-medium"
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
@@ -179,7 +179,7 @@ export const AdminDashboard = () => {
     // Error state
     if (error) {
         return (
-            <motion.div 
+            <motion.div
                 className="min-h-screen relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -200,7 +200,7 @@ export const AdminDashboard = () => {
 
                 <div className="p-6">
                     <div className="max-w-7xl mx-auto">
-                        <motion.div 
+                        <motion.div
                             className="bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-8 text-center backdrop-blur-sm"
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
@@ -214,7 +214,7 @@ export const AdminDashboard = () => {
                             </motion.div>
                             <h2 className="text-2xl font-bold text-red-800 dark:text-red-200 mb-2">Dashboard Data Unavailable</h2>
                             <p className="text-red-600 dark:text-red-300 mb-6">{error}</p>
-                            <motion.button 
+                            <motion.button
                                 onClick={() => dispatch(fetchAdminStats())}
                                 className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-3 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 font-medium shadow-lg"
                                 variants={buttonVariants}
@@ -233,7 +233,7 @@ export const AdminDashboard = () => {
     // Check if adminStats exists and has overview
     if (!adminStats || !adminStats.overview) {
         return (
-            <motion.div 
+            <motion.div
                 className="min-h-screen relative"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -253,7 +253,7 @@ export const AdminDashboard = () => {
 
                 <div className="p-6">
                     <div className="max-w-7xl mx-auto">
-                        <motion.div 
+                        <motion.div
                             className="bg-yellow-50/80 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-8 text-center backdrop-blur-sm"
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
@@ -262,7 +262,7 @@ export const AdminDashboard = () => {
                             <FaExclamationTriangle className="text-yellow-500 text-5xl mx-auto mb-4" />
                             <h2 className="text-2xl font-bold text-yellow-800 dark:text-yellow-200 mb-2">No Data Available</h2>
                             <p className="text-yellow-700 dark:text-yellow-300 mb-6">Dashboard data is not available. Please try refreshing the page.</p>
-                            <motion.button 
+                            <motion.button
                                 onClick={() => dispatch(fetchAdminStats())}
                                 className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-8 py-3 rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 font-medium shadow-lg"
                                 variants={buttonVariants}
@@ -295,7 +295,7 @@ export const AdminDashboard = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-transparent via-blue-50/10 to-purple-50/10 dark:from-transparent dark:via-blue-900/5 dark:to-purple-900/5" />
             </div>
 
-            <motion.div 
+            <motion.div
                 className="relative p-6"
                 variants={containerVariants}
                 initial="hidden"
@@ -303,7 +303,7 @@ export const AdminDashboard = () => {
             >
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
-                    <motion.div 
+                    <motion.div
                         className="mb-8"
                         variants={cardVariants}
                     >
@@ -314,7 +314,7 @@ export const AdminDashboard = () => {
                     </motion.div>
 
                     {/* KPI Cards */}
-                    <motion.div 
+                    <motion.div
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
                         variants={containerVariants}
                     >
@@ -361,11 +361,11 @@ export const AdminDashboard = () => {
                             >
                                 {/* Gradient overlay */}
                                 <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                                
+
                                 <div className="relative flex items-center justify-between">
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{stat.title}</p>
-                                        <motion.p 
+                                        <motion.p
                                             className={`text-3xl font-bold text-${stat.color}-600 mb-2`}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -378,7 +378,7 @@ export const AdminDashboard = () => {
                                             {stat.change}
                                         </div>
                                     </div>
-                                    <motion.div 
+                                    <motion.div
                                         className={`bg-gradient-to-br ${stat.bgGradient} p-4 rounded-full shadow-lg`}
                                         whileHover={{ scale: 1.1, rotate: 5 }}
                                         transition={{ duration: 0.3 }}
@@ -391,7 +391,7 @@ export const AdminDashboard = () => {
                     </motion.div>
 
                     {/* Quick Actions */}
-                    <motion.div 
+                    <motion.div
                         className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700"
                         variants={cardVariants}
                     >
@@ -427,7 +427,7 @@ export const AdminDashboard = () => {
                     </motion.div>
 
                     {/* Sales Over Time Chart */}
-                    <motion.div 
+                    <motion.div
                         className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700"
                         variants={cardVariants}
                     >
@@ -438,7 +438,7 @@ export const AdminDashboard = () => {
                             Sales Over Time
                         </h2>
                         {adminStats.monthlySales && adminStats.monthlySales.length > 0 ? (
-                            <motion.div 
+                            <motion.div
                                 className="h-80"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -447,8 +447,8 @@ export const AdminDashboard = () => {
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={adminStats.monthlySales}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                                        <XAxis 
-                                            dataKey="month" 
+                                        <XAxis
+                                            dataKey="month"
                                             tick={{ fontSize: 12 }}
                                             angle={-45}
                                             textAnchor="end"
@@ -457,7 +457,7 @@ export const AdminDashboard = () => {
                                         />
                                         <YAxis yAxisId="left" orientation="left" stroke="#666" />
                                         <YAxis yAxisId="right" orientation="right" stroke="#666" />
-                                        <Tooltip 
+                                        <Tooltip
                                             formatter={(value, name) => [
                                                 name === 'revenue' ? formatCurrency(value) : value,
                                                 name === 'revenue' ? 'Revenue' : 'Enrollments'
@@ -471,21 +471,21 @@ export const AdminDashboard = () => {
                                             }}
                                         />
                                         <Legend />
-                                        <Line 
+                                        <Line
                                             yAxisId="left"
-                                            type="monotone" 
-                                            dataKey="revenue" 
-                                            stroke="#8884d8" 
+                                            type="monotone"
+                                            dataKey="revenue"
+                                            stroke="#8884d8"
                                             strokeWidth={3}
                                             name="Revenue (₹)"
                                             connectNulls={false}
                                             dot={{ fill: '#8884d8', strokeWidth: 2, r: 6 }}
                                         />
-                                        <Line 
+                                        <Line
                                             yAxisId="right"
-                                            type="monotone" 
-                                            dataKey="enrollments" 
-                                            stroke="#82ca9d" 
+                                            type="monotone"
+                                            dataKey="enrollments"
+                                            stroke="#82ca9d"
                                             strokeWidth={3}
                                             name="Enrollments"
                                             connectNulls={false}
@@ -495,7 +495,7 @@ export const AdminDashboard = () => {
                                 </ResponsiveContainer>
                             </motion.div>
                         ) : (
-                            <motion.div 
+                            <motion.div
                                 className="text-center py-12"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -515,7 +515,7 @@ export const AdminDashboard = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                         {/* Course Popularity Chart */}
-                        <motion.div 
+                        <motion.div
                             className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
                             variants={cardVariants}
                         >
@@ -526,7 +526,7 @@ export const AdminDashboard = () => {
                                 Course Popularity
                             </h2>
                             {adminStats.coursePopularity && adminStats.coursePopularity.length > 0 ? (
-                                <motion.div 
+                                <motion.div
                                     className="h-80"
                                     initial={{ opacity: 0, x: -50 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -536,14 +536,14 @@ export const AdminDashboard = () => {
                                         <BarChart data={adminStats.coursePopularity} layout="horizontal">
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                                             <XAxis type="number" stroke="#666" />
-                                            <YAxis 
-                                                dataKey="courseName" 
-                                                type="category" 
+                                            <YAxis
+                                                dataKey="courseName"
+                                                type="category"
                                                 width={120}
                                                 tick={{ fontSize: 12 }}
                                                 stroke="#666"
                                             />
-                                            <Tooltip 
+                                            <Tooltip
                                                 contentStyle={{
                                                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                                     border: 'none',
@@ -556,7 +556,7 @@ export const AdminDashboard = () => {
                                     </ResponsiveContainer>
                                 </motion.div>
                             ) : (
-                                <motion.div 
+                                <motion.div
                                     className="text-center py-12"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -569,7 +569,7 @@ export const AdminDashboard = () => {
                         </motion.div>
 
                         {/* Category Distribution */}
-                        <motion.div 
+                        <motion.div
                             className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
                             variants={cardVariants}
                         >
@@ -580,7 +580,7 @@ export const AdminDashboard = () => {
                                 Category Distribution
                             </h2>
                             {adminStats.categoryDistribution && adminStats.categoryDistribution.length > 0 ? (
-                                <motion.div 
+                                <motion.div
                                     className="h-80"
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -602,7 +602,7 @@ export const AdminDashboard = () => {
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip 
+                                            <Tooltip
                                                 contentStyle={{
                                                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                                     border: 'none',
@@ -615,7 +615,7 @@ export const AdminDashboard = () => {
                                     </ResponsiveContainer>
                                 </motion.div>
                             ) : (
-                                <motion.div 
+                                <motion.div
                                     className="text-center py-12"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -629,7 +629,7 @@ export const AdminDashboard = () => {
                     </div>
 
                     {/* Recent Activity */}
-                    <motion.div 
+                    <motion.div
                         className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
                         variants={cardVariants}
                     >
@@ -640,7 +640,7 @@ export const AdminDashboard = () => {
                             Recent Enrollments
                         </h2>
                         {adminStats.recentActivity && adminStats.recentActivity.length > 0 ? (
-                            <motion.div 
+                            <motion.div
                                 className="overflow-x-auto"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -666,8 +666,8 @@ export const AdminDashboard = () => {
                                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                         <AnimatePresence>
                                             {adminStats.recentActivity.map((activity, index) => (
-                                                <motion.tr 
-                                                    key={index} 
+                                                <motion.tr
+                                                    key={index}
                                                     className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors"
                                                     initial={{ opacity: 0, x: -20 }}
                                                     animate={{ opacity: 1, x: 0 }}
@@ -704,7 +704,7 @@ export const AdminDashboard = () => {
                                 </table>
                             </motion.div>
                         ) : (
-                            <motion.div 
+                            <motion.div
                                 className="text-center py-12"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}

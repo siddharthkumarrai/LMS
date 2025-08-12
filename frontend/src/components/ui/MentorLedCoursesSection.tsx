@@ -243,7 +243,7 @@ const {
   });
 
   return (
-    <section className={cn(
+    <section id='courses'  className={cn(
       "relative w-full bg-gradient-to-b from-gray-50 to-white py-16 md:py-24",
     )}>
       <div className="container mx-auto px-4 lg:px-8">
@@ -256,7 +256,7 @@ const {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-4 py-2 rounded-full text-sm font-medium my-14">
+          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-14">
             <span>🌟</span>
             Explore Our Courses
           </div>

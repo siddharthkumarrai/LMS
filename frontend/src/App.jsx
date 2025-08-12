@@ -35,6 +35,10 @@ import { verifyUser } from './redux/features/auth/authSlice';
 import SettingsPage from './pages/SettingsPage';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import ContactUs from './pages/ContactUs';
+import FAQPage from './pages/FAQPage';
+import BlogPage from './pages/BlogPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage ';
 
 function App() {
 
@@ -55,6 +59,10 @@ function App() {
         <Route path='/checkout/success' element={<PaymentSuccess />} />
         <Route path="/payment/failure" element={<PaymentFailure />} />
         <Route path="/course/:courseId/player" element={<CoursePlayer />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/faqs" element={<FAQPage />} />
+        <Route path="/blogs" element={<BlogPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
         <Route element={<AuthRoute />}>
           <Route path="/signup" element={<Signup />} />

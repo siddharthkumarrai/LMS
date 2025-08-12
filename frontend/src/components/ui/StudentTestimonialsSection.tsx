@@ -197,7 +197,7 @@ const StudentTestimonialsSection: React.FC<StudentTestimonialsSectionProps> = ({
   };
 
   return (
-    <section className={cn(
+    <section id='students' className={cn(
       "relative w-full bg-gradient-to-b from-gray-50 to-white py-8 sm:py-12 md:py-16 lg:py-24 overflow-hidden",
     )}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

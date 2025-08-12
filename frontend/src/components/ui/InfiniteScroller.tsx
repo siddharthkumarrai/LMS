@@ -183,10 +183,10 @@ const InfiniteScroller: React.FC<InfiniteScrollerProps> = ({
       className={cn(
         "relative w-full overflow-hidden py-8",
         "before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-40",
-        "before:bg-gradient-to-r before:from-black before:via-black/90 before:to-transparent",
+        "before:bg-gradient-to-r before:from-black before:via-black/30 before:to-transparent",
         "before:content-[''] before:pointer-events-none",
         "after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-40",
-        "after:bg-gradient-to-l after:from-black after:via-black/90 after:to-transparent", 
+        "after:bg-gradient-to-l after:from-black after:via-black/30 after:to-transparent", 
         "after:content-[''] after:pointer-events-none",
       )}
     >

@@ -28,10 +28,10 @@ interface SocialLink {
 
 // Footer data
 const companyLinks: FooterLink[] = [
-  { name: "About us", href: "/about-us" },
-  { name: "Contact us", href: "/contact-us" },
+  { name: "Home", href: "/" },
+  { name: "Contact us", href: "/contact" },
   { name: "FAQ", href: "/faqs" },
-  { name: "Blog", href: "/" },
+  { name: "Blog", href: "/blogs" },
   { name: "Career Services", href: "/" }
 ];
 
@@ -203,7 +203,7 @@ const PWSkillsFooter: React.FC = () => {
         >
           {/* Hero Section */}
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-16 mt-6"
             variants={itemVariants}
           >
             <motion.h2 
@@ -253,16 +253,16 @@ const PWSkillsFooter: React.FC = () => {
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mr-4 shadow-lg bg-white/20 backdrop-blur-sm border border-white/30"
                   whileHover={{ rotate: 5 }}
                 >
-                  <span className="text-white font-bold text-xl">PW</span>
+                  <span className="text-white font-bold text-xl">SK</span>
                 </motion.div>
-                <span className="text-white font-bold text-2xl drop-shadow-lg">SKILLS</span>
+                <span className="text-white font-bold text-2xl drop-shadow-lg">SKILLSLMS</span>
               </motion.div>
 
               {/* Contact Information */}
               <div className="space-y-6">
                 {[
-                  { icon: FaPhone, text: "Contact Us: +91 7349432553", href: "tel:+917349432553" },
-                  { icon: FaEnvelope, text: "Email Us: support@pwskills.com", href: "mailto:support@pwskills.com" },
+                  { icon: FaPhone, text: "Contact Us: +91 9910032074", href: "tel:+919910032074" },
+                  { icon: FaEnvelope, text: "Email Us: support@skillslms@gmail.com", href: "mailto:developersiddharthkumarrai@gmail.com" },
                   { icon: FaMapMarkerAlt, text: "17th floor Tower A, Brigade Signature Towers, Sannatammanahalli, Bengaluru, Karnataka 562129.", href: null }
                 ].map((contact, index) => (
                   <motion.div
@@ -424,19 +424,19 @@ const PWSkillsFooter: React.FC = () => {
             transition={{ duration: 0.8, delay: 1.2 }}
           >
             <p className="text-white/80 text-sm drop-shadow-sm">
-              © 2024 PWSkills. All rights reserved.
+              © 2024 SkillsLMS. All rights reserved.
             </p>
             
             <div className="flex flex-wrap items-center gap-6">
               <motion.a 
-                href="https://pwskills.com/privacy-policy"
+                href="/privacy-policy"
                 className="text-white/80 hover:text-white transition-colors text-sm drop-shadow-sm"
                 whileHover={{ scale: 1.05 }}
               >
                 Privacy Policy
               </motion.a>
               <motion.a 
-                href="https://pwskills.com/terms-and-conditions"
+                href="/privacy-policy"
                 className="text-white/80 hover:text-white transition-colors text-sm drop-shadow-sm"
                 whileHover={{ scale: 1.05 }}
               >

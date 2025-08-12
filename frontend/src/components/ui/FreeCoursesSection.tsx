@@ -25,12 +25,12 @@ interface FilterTab {
 // Sample course data
 const coursesData: Course[] = [
   {
-    id: '1',
-    title: 'Foundations of Stock Trading',
+    id: '6890es9d348c1ea128cbe50da',
+    title: 'Attacking Active Directory with Advanced Techniques With Lab',
     category: 'All',
     duration: '33 months',
     enrolled: '1000+ Enrolled',
-    thumbnail: 'https://cdn.pwskills.com/assets/uploads/course-thumbnail/62fdd789-f106-45b9-bbc8-089966b67bc3.jpeg',
+    thumbnail: 'https://images.shiksha.com/mediadata/images/articles/1709716893phpMHu9M9.jpeg',
     rating: 4.8,
     level: 'Beginner'
   },
@@ -214,7 +214,7 @@ const FreeCoursesSection: React.FC = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.div 
-            className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6"
+            className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6  mt-[-8rem]"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}

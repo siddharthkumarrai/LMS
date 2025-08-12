@@ -11,8 +11,8 @@ const BecomeInstructor = () => {
                     Join our team of expert mentors and share your knowledge with thousands of students across the globe.
                 </p>
                 <Link to="/signup/instructor">
-                    <button className="btn btn-primary btn-lg">
-                        Start Teaching Today
+                    <button className="btn btn-primary btn-lg cursor-pointer">
+                        Start Teaching Today Click Here
                     </button>
                 </Link>
             </div>

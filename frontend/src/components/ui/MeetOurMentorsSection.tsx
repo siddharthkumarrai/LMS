@@ -159,7 +159,7 @@ const MeetOurMentorsSection = ({ className }: { className?: string }) => {
 
   return (
     <section className={cn(
-      "relative w-full bg-gradient-to-b from-gray-50 to-white py-16",
+      "relative w-full bg-gradient-to-b from-gray-50 to-white pb-16",
     )}>
 
       {/* Light Wavy Grid Background */}
@@ -420,7 +420,7 @@ const MeetOurMentorsSection = ({ className }: { className?: string }) => {
         }
       `}</style>
       {/* Section padding maintained */}
-      <div className="relative container mx-auto px-4 lg:px-8 py-12"></div>
+      <div className="relative container mx-auto px-4 lg:px-8"></div>
     </section>
   );
 };

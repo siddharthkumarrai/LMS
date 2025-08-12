@@ -9,6 +9,7 @@ import courseRoutes from "./routes/course.route.js";
 import Razorpay from "razorpay"
 import paymentRoutes from "./routes/payment.route.js";
 import statsRoutes from './routes/stats.routes.js';
+import contactRoutes from './routes/contact.routes.js';
 
 
 const app = express();
@@ -137,6 +138,8 @@ app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/courses",courseRoutes)
 app.use("/api/v1/payments",paymentRoutes)
 app.use('/api/v1/stats', statsRoutes);
+
+app.use('/api/v1/contact', contactRoutes);
 
 app.use("/ping",(req,res)=>{
     res.status(200).send("/PONG");
