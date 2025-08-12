@@ -7,14 +7,21 @@ interface Course {
     _id: string;
     title: string;
     description: string;
-    thumbnail: { secureUrl: string };
+    category: string;
+    price: number;
+    thumbnail: { 
+        thumbnailId?: string;
+        thumbnailUrl?: string;
+        secureUrl?: string; 
+    };
     lectures: Lecture[];
-    price: number; // Added price field that your component expects
     createdBy: {
         _id: string;
         name: string;
         email: string;
     } | string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface Lecture {
@@ -30,26 +37,65 @@ interface Lecture {
 interface CourseState {
     myCourses: Course[];
     allCourses: Course[];
+    freeCourses: Course[]; // Add freeCourses to the state
     currentCourse: Course | null;
     loading: boolean;
     searchLoading: boolean;
+    freeCoursesLoading: boolean; // Add specific loading state for free courses
     totalPages: number;
     currentPage: number;
     totalCourses: number;
-    error: string | null; // Added error field for better error handling
+    error: string | null;
 }
 
 const initialState: CourseState = {
     myCourses: [],
     allCourses: [],
+    freeCourses: [], // Initialize freeCourses as empty array
     currentCourse: null,
     loading: false,
     searchLoading: false,
+    freeCoursesLoading: false, // Initialize free courses loading state
     totalPages: 0,
     currentPage: 1,
     totalCourses: 0,
     error: null,
 };
+
+// New async thunk for fetching free courses
+export const fetchFreeCourses = createAsyncThunk(
+    "courses/fetchFreeCourses",
+    async (_, { rejectWithValue }) => {
+        try {
+            console.log('🚀 Fetching free courses...');
+            const response = await axiosInstance.get('/courses/free');
+            console.log('✅ Free courses response:', response.data);
+
+            const responseData = response.data;
+            const courses = responseData.courses || responseData.data || [];
+
+            console.log('📊 Processed free courses:', {
+                coursesCount: courses.length,
+                firstCourse: courses[0]
+            });
+
+            return {
+                courses,
+                totalCourses: responseData.totalCourses || courses.length
+            };
+        } catch (error: any) {
+            console.error('❌ Error fetching free courses:', error);
+            const errorMessage = error?.response?.data?.message || "Failed to fetch free courses.";
+            
+            // Only show toast for actual errors, not for empty results
+            if (error?.response?.status !== 404) {
+                toast.error(errorMessage);
+            }
+
+            return rejectWithValue(errorMessage);
+        }
+    }
+);
 
 // Async Thunk for fetching created courses
 export const fetchMyCreatedCourses = createAsyncThunk(
@@ -231,7 +277,6 @@ export const deleteCourse = createAsyncThunk(
     }
 );
 
-
 const courseSlice = createSlice({
     name: "courses",
     initialState,
@@ -244,6 +289,11 @@ const courseSlice = createSlice({
             state.totalCourses = 0;
             state.error = null;
         },
+        // Clear free courses
+        clearFreeCourses: (state) => {
+            state.freeCourses = [];
+            state.error = null;
+        },
         // Clear error
         clearError: (state) => {
             state.error = null;
@@ -252,10 +302,31 @@ const courseSlice = createSlice({
         resetLoading: (state) => {
             state.loading = false;
             state.searchLoading = false;
+            state.freeCoursesLoading = false;
         }
     },
     extraReducers: (builder) => {
         builder
+            // Free Courses - New handlers
+            .addCase(fetchFreeCourses.pending, (state) => {
+                state.freeCoursesLoading = true;
+                state.error = null;
+                console.log('🔄 fetchFreeCourses pending - setting freeCoursesLoading to true');
+            })
+            .addCase(fetchFreeCourses.fulfilled, (state, action) => {
+                console.log('✅ fetchFreeCourses fulfilled with payload:', action.payload);
+                state.freeCoursesLoading = false;
+                state.freeCourses = action.payload.courses || [];
+                state.error = null;
+                console.log('📝 State updated - freeCourses length:', state.freeCourses.length);
+            })
+            .addCase(fetchFreeCourses.rejected, (state, action) => {
+                console.log('❌ fetchFreeCourses rejected with error:', action.payload);
+                state.freeCoursesLoading = false;
+                state.freeCourses = [];
+                state.error = action.payload as string;
+            })
+
             // My Created Courses
             .addCase(fetchMyCreatedCourses.pending, (state) => {
                 state.loading = true;
@@ -344,6 +415,8 @@ const courseSlice = createSlice({
                 state.myCourses = state.myCourses.filter(course => course._id !== action.payload);
                 // Also remove from allCourses if it exists there
                 state.allCourses = state.allCourses.filter(course => course._id !== action.payload);
+                // Also remove from freeCourses if it exists there
+                state.freeCourses = state.freeCourses.filter(course => course._id !== action.payload);
                 state.error = null;
             })
             .addCase(deleteCourse.rejected, (state, action) => {
@@ -351,38 +424,37 @@ const courseSlice = createSlice({
                 state.error = action.payload as string;
             })
 
-
             // Add Lecture
             .addCase(addLectureToCourse.pending, (state) => {
                 state.loading = true;
             })
-        .addCase(addLectureToCourse.fulfilled, (state, action) => {
-            state.loading = false;
-            if (state.currentCourse && action.payload.lectures) {
-                state.currentCourse.lectures = action.payload.lectures;
-            }
-        })
-        .addCase(addLectureToCourse.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload as string;
-        })
+            .addCase(addLectureToCourse.fulfilled, (state, action) => {
+                state.loading = false;
+                if (state.currentCourse && action.payload.lectures) {
+                    state.currentCourse.lectures = action.payload.lectures;
+                }
+            })
+            .addCase(addLectureToCourse.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
 
-        // Delete Lecture
-        .addCase(deleteLectureFromCourse.pending, (state) => {
-            state.loading = true;
-        })
-        .addCase(deleteLectureFromCourse.fulfilled, (state, action) => {
-            state.loading = false;
-            if (state.currentCourse) {
-                state.currentCourse.lectures = action.payload || [];
-            }
-        })
-        .addCase(deleteLectureFromCourse.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload as string;
-        });
-},
+            // Delete Lecture
+            .addCase(deleteLectureFromCourse.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(deleteLectureFromCourse.fulfilled, (state, action) => {
+                state.loading = false;
+                if (state.currentCourse) {
+                    state.currentCourse.lectures = action.payload || [];
+                }
+            })
+            .addCase(deleteLectureFromCourse.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            });
+    },
 });
 
-export const { clearAllCourses, clearError, resetLoading } = courseSlice.actions;
+export const { clearAllCourses, clearFreeCourses, clearError, resetLoading } = courseSlice.actions;
 export default courseSlice.reducer;

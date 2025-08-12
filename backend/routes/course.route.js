@@ -7,6 +7,7 @@ import {
     getAllCourses,
     getCourseById,
     getCourseLectures,
+    getFreeCourses,
     getMyCourses,
     updateCourse,
     updateCourseLecture
@@ -34,6 +35,10 @@ courseRoutes.get(
 
 
 courseRoutes
+    .route("/free").get(getFreeCourses);
+
+
+courseRoutes
     .route("/:id") // <-- Dynamic route ab specific route ke BAAD mein hai
     .get(getCourseById)
     .patch(isLoggedIn, authorizedRoles("admin"), upload.single('thumbnail'), updateCourse)
@@ -48,6 +53,7 @@ courseRoutes
 courseRoutes
     .route("/:courseId/lectures")
     .get(isLoggedIn, getCourseLectures);
+
 
 
 export default courseRoutes;

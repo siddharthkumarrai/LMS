@@ -1,47 +1,62 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { Clock, Users, ArrowRight } from 'lucide-react';
+import { Clock, Users, ArrowRight, Loader2, AlertCircle, Eye, ShoppingCart, Sparkles, TrendingUp, BookOpen, Award, Star } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
+import { fetchFreeCourses } from '../../redux/features/courses/courseSlice';
+import toast from 'react-hot-toast';
 
 // TypeScript interfaces
 interface Course {
-  id: string;
+  _id: string;
   title: string;
   category: string;
-  duration: string;
-  enrolled: string;
-  thumbnail: string;
-  rating: number;
-  level: string;
+  duration?: string;
+  enrolled?: string;
+  thumbnail: {
+    thumbnailId?: string;
+    thumbnailUrl?: string;
+    secureUrl?: string;
+  };
+  rating?: number;
+  level?: string;
+  price: number;
+  lectures?: any[];
+  description?: string;
+  createdBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  } | string;
 }
 
-interface FilterTab {
-  id: string;
-  label: string;
-  count: number;
-}
+// 3D Card Components (from AllCourses)
+const CardContainer = ({ children, className = '' }) => (
+  <div className={`perspective-1000 ${className}`}>
+    {children}
+  </div>
+);
 
-// Sample course data
-const coursesData: Course[] = [
-  {
-    id: '6890es9d348c1ea128cbe50da',
-    title: 'Attacking Active Directory with Advanced Techniques With Lab',
-    category: 'All',
-    duration: '33 months',
-    enrolled: '1000+ Enrolled',
-    thumbnail: 'https://images.shiksha.com/mediadata/images/articles/1709716893phpMHu9M9.jpeg',
-    rating: 4.8,
-    level: 'Beginner'
-  },
-];
+const CardBody = ({ children, className = '' }) => (
+  <div className={`transform-style-preserve-3d transition-transform duration-300 hover:rotateY-5 ${className}`}>
+    {children}
+  </div>
+);
 
-// Filter tabs
-const filterTabs: FilterTab[] = [
-  { id: 'All', label: 'All', count: coursesData.length },
-//   { id: 'Stock Market', label: 'Stock Market', count: coursesData.filter(c => c.category === 'Stock Market').length },
-//   { id: 'Tech Basics', label: 'Tech Basics', count: coursesData.filter(c => c.category === 'Tech Basics').length }
-];
+const CardItem = ({ children, translateZ = 0, as: Component = 'div', className = '', ...props }) => {
+  const translateStyle = translateZ ? { transform: `translateZ(${translateZ}px)` } : {};
+  return (
+    <Component 
+      className={`transition-transform duration-300 hover:translateZ-${translateZ} ${className}`}
+      style={translateStyle}
+      {...props}
+    >
+      {children}
+    </Component>
+  );
+};
 
 // Animation variants
 const containerVariants = {
@@ -81,130 +96,349 @@ const cardVariants = {
   }
 };
 
-// Course Card Component - Exact Layout Match
+// Enhanced Course Card Component with All Courses-like experience
 const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [loadingCourseId, setLoadingCourseId] = useState(null);
+  const [actionType, setActionType] = useState(null); // 'explore' or 'enroll'
+  const navigate = useNavigate();
+
+  // Helper functions
+  const formatPrice = (price) => {
+    if (price === 0) return 'Free';
+    return `₹${price.toLocaleString('en-IN')}`;
+  };
+
+  const getDuration = () => {
+    if (course.lectures && course.lectures.length > 0) {
+      const totalMinutes = course.lectures.reduce((total, lecture) => {
+        const [minutes, seconds] = lecture.duration?.split(':').map(Number) || [0, 0];
+        return total + minutes + (seconds / 60);
+      }, 0);
+      return `${Math.round(totalMinutes)} min`;
+    }
+    return "Self-paced";
+  };
+
+  const getEnrollmentCount = () => {
+    if (course.enrolled) return course.enrolled;
+    return Math.floor(Math.random() * 500 + 100) + "+ enrolled";
+  };
+
+  const getInstructorName = () => {
+    if (typeof course.createdBy === 'object' && course.createdBy?.name) {
+      return course.createdBy.name;
+    }
+    return 'Expert Instructor';
+  };
+
+  // Handle explore course - navigate to course details page
+  const handleExplore = (courseId) => {
+    setLoadingCourseId(courseId);
+    setActionType('explore');
+    
+    // Add a small delay for better UX
+    setTimeout(() => {
+      navigate(`/course/${courseId}`);
+      toast('📚 Loading course details...', {
+        icon: '🔍',
+        duration: 2000,
+      });
+      setLoadingCourseId(null);
+      setActionType(null);
+    }, 300);
+  };
+
+  // Handle enroll - navigate to checkout/enrollment page  
+  const handleEnrollNow = (courseId) => {
+    setLoadingCourseId(courseId);
+    setActionType('enroll');
+    
+    // Add a small delay for better UX
+    setTimeout(() => {
+      // For free courses, navigate to a special free enrollment flow
+      navigate(`/checkout/${courseId}?free=true`);
+      toast.success('🎉 Redirecting to free enrollment...', {
+        duration: 2000,
+      });
+      setLoadingCourseId(null);
+      setActionType(null);
+    }, 300);
+  };
 
   return (
-    <motion.div
-      layout
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      whileHover={{ 
-        y: -4,
-        boxShadow: "0px 4px 25px rgba(0,0,0,0.10)"
-      }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="rounded-lg font-nunitoSans flex mt-5 relative shrink-0 flex-col bg-white cursor-pointer transition-all duration-500"
-      style={{
-        width: '302px',
-        minHeight: '280px',
-        padding: '0',
-        margin: '0',
-        borderRadius: '20px',
-        boxShadow: '0px 2px 8px rgba(0,0,0,0.06)'
-      }}
-    >
-      {/* Card Content */}
-      <div className="flex flex-col flex-grow">
-        {/* Image Section */}
-        <div className="mx-auto w-full col-span-2 pt-4 px-4">
-          <div className="relative">
-            {/* Free Badge */}
-            <div className="absolute top-0 left-0 z-[9999] ml-2 mt-2">
-              <p className="text-[10px] leading-4 font-bold bg-[#E97862] text-white rounded-[56px] px-2 py-[2px]">
-                Free
-              </p>
-            </div>
-            
-            {/* Course Image */}
-            <img
-              src={course.thumbnail}
-              className="w-full rounded-[6px] h-[154px] object-cover"
-              loading="eager"
-              alt={course.title}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(course.title)}&background=E97862&color=fff&size=302x154`;
-              }}
-            />
+    <CardContainer className="inter-var">
+      <motion.div
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        whileHover={{ 
+          y: -4,
+          transition: { duration: 0.3, ease: "easeOut" }
+        }}
+      >
+        <CardBody className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black relative group/card hover:shadow-2xl hover:shadow-emerald-500/[0.1] dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-gray-200 w-full h-auto rounded-xl p-6 border transition-all duration-300">
+          
+          {/* Price Badge */}
+          <div className="absolute top-4 right-4 z-10">
+            <CardItem translateZ="30">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                {formatPrice(course.price)}
+              </span>
+            </CardItem>
           </div>
-        </div>
 
-        {/* Content Section */}
-        <div className="flex flex-col justify-between gap-4 flex-grow px-4 pb-4 pt-2">
-          <div className="flex flex-col justify-between gap-2 h-full">
-            {/* Title Section */}
-            <div className="flex flex-row justify-between min-h-12">
-              <p className="text-[16px] leading-6 font-bold text-gray-900 line-clamp-2 break-words">
-                {course.title}
-              </p>
+          {/* Category Badge */}
+          {course.category && (
+            <div className="absolute top-4 left-4 z-10">
+              <CardItem translateZ="30">
+                <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-md text-xs font-medium">
+                  {course.category}
+                </span>
+              </CardItem>
             </div>
-
-            {/* Metadata and Button Section */}
-            <div className="flex flex-col gap-2">
-              {/* Divider */}
-              <div className="w-[270px] bg-[#EFEFEF] h-[1px]"></div>
-              
-              {/* Duration and Enrollment */}
-              <div className="flex gap-2">
-                <div className="flex gap-1 items-center">
-                  <Clock className="w-4 h-4 text-gray-600" />
-                  <p className="text-sm leading-[22px] font-semibold text-black">
-                    {course.duration }
-                  </p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4 text-gray-600" />
-                  <p className="text-sm leading-[22px] font-semibold text-black">
-                    {course.enrolled}
-                  </p>
-                </div>
+          )}
+          
+          <CardItem
+            translateZ="50"
+            className="text-xl font-bold text-gray-800 dark:text-white line-clamp-2 mt-8 min-h-[3rem]"
+          >
+            {course.title}
+          </CardItem>
+          
+          <CardItem
+            as="p"
+            translateZ="60"
+            className="text-gray-600 text-sm max-w-sm mt-2 dark:text-neutral-300 line-clamp-2 h-10"
+          >
+            {course.description}
+          </CardItem>
+          
+          <CardItem translateZ="100" className="w-full mt-4">
+            <div className="relative overflow-hidden rounded-xl">
+              <img
+                src={course.thumbnail?.thumbnailUrl || course.thumbnail?.secureUrl || '/api/placeholder/400/250'}
+                height="250"
+                width="400"
+                className="h-48 w-full object-cover group-hover/card:scale-105 transition-transform duration-300"
+                alt={course.title}
+                onError={(e) => {
+                  e.target.src = '/api/placeholder/400/250';
+                }}
+              />
+              {/* Overlay with lecture count */}
+              <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs flex items-center gap-1">
+                <BookOpen className="w-3 h-3" />
+                {course.lectures?.length || 0} lectures
               </div>
-
-              {/* Enroll Button */}
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`relative w-full font-extrabold mt-2 py-2 pl-[18px] pr-2 gap-0 z-10 border rounded-[4px] flex justify-center items-center transition-all duration-500 text-sm max-h-10 ${
-                  isHovered 
-                    ? 'bg-[#E97862] text-white border-[#E97862]' 
-                    : 'bg-white text-[#E58471] border-[#E97862]'
-                }`}
-              >
-                <p className="text-sm leading-[22px] font-semibold font-inter">
-                  Enroll for Free
-                </p>
-                <ArrowRight className="w-6 h-6 ml-1" />
-              </motion.button>
+              
+              {/* Rating badge */}
+              <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-gray-800 px-2 py-1 rounded-md text-xs flex items-center gap-1">
+                <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                {course.rating || (4.5 + Math.random() * 0.5).toFixed(1)}
+              </div>
             </div>
+          </CardItem>
+          
+          <div className="mt-4 mb-4">
+            <CardItem
+              translateZ="40"
+              className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1 mb-2"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+              {getInstructorName()}
+            </CardItem>
+            
+            {/* Course Stats */}
+            <CardItem
+              translateZ="40"
+              className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-between"
+            >
+              <span className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                {getDuration()}
+              </span>
+              <span className="flex items-center gap-1">
+                <TrendingUp className="w-4 h-4" />
+                {getEnrollmentCount()}
+              </span>
+            </CardItem>
+          </div>
+          
+          {/* Action Buttons - Same as All Courses */}
+          <div className="flex justify-between items-center mt-6 gap-3">
+            <CardItem
+              translateZ={20}
+              as="button"
+              onClick={() => handleExplore(course._id)}
+              disabled={loadingCourseId === course._id}
+              className="flex-1 px-4 py-2 rounded-xl text-sm font-normal text-gray-700 dark:text-white border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loadingCourseId === course._id && actionType === 'explore' ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full"></div>
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <Eye className="w-4 h-4" />
+                  Explore
+                </>
+              )}
+            </CardItem>
+            
+            <CardItem
+              translateZ={20}
+              as="button"
+              onClick={() => handleEnrollNow(course._id)}
+              disabled={loadingCourseId === course._id}
+              className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white text-sm font-bold transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+            >
+              {loadingCourseId === course._id && actionType === 'enroll' ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Award className="w-4 h-4" />
+                  Enroll Free
+                </>
+              )}
+            </CardItem>
+          </div>
+        </CardBody>
+      </motion.div>
+    </CardContainer>
+  );
+};
+
+// Error Component
+const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => (
+  <motion.div 
+    className="flex flex-col items-center justify-center py-12 px-4"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+    <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Free Courses</h3>
+    <p className="text-gray-600 text-center mb-4 max-w-md">{error}</p>
+    <motion.button
+      onClick={onRetry}
+      className="px-6 py-2 bg-[#E97862] text-white rounded-lg font-medium hover:bg-[#d86b5a] transition-colors"
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      Try Again
+    </motion.button>
+  </motion.div>
+);
+
+// Loading Component with skeleton cards
+const LoadingDisplay: React.FC = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {[...Array(6)].map((_, index) => (
+      <div key={index} className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden animate-pulse border border-gray-200 dark:border-gray-700">
+        <div className="p-6">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+          <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4"></div>
+          <div className="flex justify-between items-center mb-4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
           </div>
         </div>
       </div>
-    </motion.div>
-  );
-};
+    ))}
+  </div>
+);
+
+// Empty State Component
+const EmptyState: React.FC = () => (
+  <motion.div 
+    className="flex flex-col items-center justify-center py-12 px-4"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <div className="text-6xl mb-4">📚</div>
+    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Free Courses Available</h3>
+    <p className="text-gray-600 text-center max-w-md">
+      We're working on adding more free courses. Check back soon for exciting new content!
+    </p>
+  </motion.div>
+);
 
 // Main Component
 const FreeCoursesSection: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Redux state
+  const courseState = useSelector((state: any) => state.courses);
+  const { 
+    freeCourses = [], 
+    freeCoursesLoading = false, 
+    error = null 
+  } = courseState || {};
+
+  // Fetch free courses when component mounts
+  useEffect(() => {
+    if (freeCourses.length === 0 && !freeCoursesLoading) {
+      dispatch(fetchFreeCourses());
+    }
+  }, [dispatch, freeCourses.length, freeCoursesLoading]);
+
+  // Get unique categories from courses
+  const categories = ['All', ...new Set(freeCourses.map((course: Course) => course.category).filter(Boolean))];
+  
+  const filterTabs = categories.map(cat => ({
+    id: cat,
+    label: cat,
+    count: cat === 'All' 
+      ? freeCourses.length 
+      : freeCourses.filter((c: Course) => c.category === cat).length
+  }));
 
   const filteredCourses = activeFilter === 'All' 
-    ? coursesData 
-    : coursesData.filter(course => course.category === activeFilter);
+    ? freeCourses 
+    : freeCourses.filter((course: Course) => course.category === activeFilter);
+
+  const handleRetry = () => {
+    dispatch(fetchFreeCourses());
+  };
+
+  // Handle View All button
+  const handleViewAll = () => {
+    navigate('/courses');
+    toast('Navigating to all courses...', {
+      icon: '🚀',
+      duration: 2000,
+    });
+  };
 
   return (
     <section 
       ref={sectionRef}
-      className="w-full bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-28 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16"
+      className="w-full bg-gradient-to-b from-gray-50 to-white py-12 sm:py-16 md:py-20 lg:py-24 xl:py-28 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative overflow-hidden"
     >
-      <div className="container mx-auto max-w-7xl">
+      {/* Background Decoration */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-emerald-100 to-green-100 rounded-full filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2" />
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
         
         {/* Section Header */}
         <motion.div
@@ -214,76 +448,137 @@ const FreeCoursesSection: React.FC = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.div 
-            className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6  mt-[-8rem]"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-600 px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-md"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <span className="text-base sm:text-lg">🎓</span>
-            Free Courses!
+            <Sparkles className="w-4 h-4" />
+            100% Free Premium Courses!
+            <Sparkles className="w-4 h-4" />
           </motion.div>
           
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight px-4 sm:px-0">
-            Still Confused? Get Started With{' '}
-            <span className="text-[#E97862]">Free Courses!</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+            Start Your Journey With{' '}
+            <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+              Free Premium Courses!
+            </span>
           </h2>
           
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-4 sm:px-0">
-            Choose from our expertly curated free courses and start your learning journey today.
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Get instant access to our expertly crafted courses. No credit card required, just pure learning excellence!
           </p>
+
+          {/* CTA Stats */}
+          <motion.div 
+            className="flex justify-center gap-8 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-600">{freeCourses.length}+</div>
+              <div className="text-sm text-gray-600">Free Courses</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-600">10k+</div>
+              <div className="text-sm text-gray-600">Happy Students</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-600">4.8★</div>
+              <div className="text-sm text-gray-600">Average Rating</div>
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Filter Tabs */}
-        <motion.div 
-          className="flex flex-wrap justify-center sm:justify-start gap-18 sm:gap-3 mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          {filterTabs.map((tab, index) => (
-            <motion.button
-              key={tab.id}
-              onClick={() => setActiveFilter(tab.id)}
-              className={`px-3 sm:px-4 md:px-18 py-2 sm:py-3 rounded-[10px] font-medium text-xs sm:text-sm md:text-base transition-all duration-300 border ${
-                activeFilter === tab.id
-                  ? 'bg-[#f37f68] text-white border-[#E97862] shadow-lg'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-[#E97862] hover:text-[#E97862]'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.3, 
-                delay: 0.5 + index * 0.1,
-                type: "spring",
-                stiffness: 200
-              }}
-            >
-              {tab.label}
-            </motion.button>
-          ))}
-        </motion.div>
+        {!freeCoursesLoading && !error && freeCourses.length > 0 && filterTabs.length > 1 && (
+          <motion.div 
+            className="flex flex-wrap justify-center gap-3 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            {filterTabs.map((tab, index) => (
+              <motion.button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id)}
+                className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${
+                  activeFilter === tab.id
+                    ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg scale-105'
+                    : 'bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 hover:shadow-md'
+                }`}
+                whileHover={{ scale: activeFilter === tab.id ? 1.05 : 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.3, 
+                  delay: 0.5 + index * 0.05,
+                }}
+              >
+                {tab.label} ({tab.count})
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
 
-        {/* Responsive Cards Container */}
+        {/* Content Area */}
         <motion.div
           layout
-          className="relative overflow-hidden flex flex-col gap-6 pl-[2px] large:px-4"
+          className="relative"
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
-          <div className="flex flex-wrap justify-start gap-4 md:gap-6 transition-all duration-300">
-            <AnimatePresence mode="wait">
-              {filteredCourses.map((course, index) => (
-                <CourseCard 
-                  key={`${activeFilter}-${course.id}`}
-                  course={course} 
-                  index={index}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
+          {/* Loading State */}
+          {freeCoursesLoading && <LoadingDisplay />}
+          
+          {/* Error State */}
+          {error && !freeCoursesLoading && (
+            <ErrorDisplay error={error} onRetry={handleRetry} />
+          )}
+          
+          {/* Empty State */}
+          {!freeCoursesLoading && !error && freeCourses.length === 0 && (
+            <EmptyState />
+          )}
+          
+          {/* Courses Grid */}
+          {!freeCoursesLoading && !error && filteredCourses.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-300">
+                <AnimatePresence mode="wait">
+                  {filteredCourses.map((course: Course, index: number) => (
+                    <CourseCard 
+                      key={`${activeFilter}-${course._id}`}
+                      course={course} 
+                      index={index}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+              
+              {/* View All Button */}
+              <motion.div 
+                className="flex justify-center mt-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+              >
+                <motion.button
+                  onClick={handleViewAll}
+                  className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Eye className="w-5 h-5" />
+                  Explore All Courses
+                  <ArrowRight className="w-5 h-5" />
+                </motion.button>
+              </motion.div>
+            </>
+          )}
         </motion.div>
       </div>
     </section>

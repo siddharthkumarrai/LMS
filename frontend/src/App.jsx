@@ -31,23 +31,13 @@ import ManageLectures from './pages/ManageLectures';
 import AllCourses from './pages/AllCourses';
 import EnrolledStudentsPage from './pages/EnrolledStudentsPage ';
 import { ModernHelpCenter } from './pages/ModernHelpCenter';
-import { verifyUser } from './redux/features/auth/authSlice';
 import SettingsPage from './pages/SettingsPage';
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import ContactUs from './pages/ContactUs';
 import FAQPage from './pages/FAQPage';
 import BlogPage from './pages/BlogPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage ';
 
 function App() {
-
-  const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(verifyUser());
-    }, [dispatch]);
-
   return (
     <Routes>
       {/* 1. Public Routes (jinke upar Navbar chahiye) */}

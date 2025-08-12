@@ -405,6 +405,28 @@ const getMyCourses = async (req, res, next) => {
     }
 };
 
+const getFreeCourses = async function (req, res, next) {
+    try {
+        // Find all courses where price is exactly 0
+        const freeCourses = await CourseModel.find({ price: 0 })
+            .populate('createdBy', 'name email') // Populate instructor details
+            .sort({ createdAt: -1 }); // Sort by newest first
+
+        if (!freeCourses) {
+            return next(new AppError("No free courses found", 404));
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: `Found ${freeCourses.length} free courses`,
+            courses: freeCourses,
+            totalCourses: freeCourses.length
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
 
 
 export {
@@ -416,5 +438,6 @@ export {
     deleteCourseLecture,
     updateCourseLecture,
     getCourseLectures,
-    getMyCourses
+    getMyCourses,
+    getFreeCourses
 }
