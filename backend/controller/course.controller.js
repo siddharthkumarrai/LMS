@@ -245,6 +245,8 @@ const createCourseLecture = async function (req, res, next) {
 
         course.lectures.push(newLecture)
 
+        fs.rm(req.file.path, { recursive: true })
+
         const courseData = await course.save()
 
         return res.status(200).json({

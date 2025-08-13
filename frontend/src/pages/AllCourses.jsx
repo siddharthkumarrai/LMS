@@ -111,7 +111,7 @@ const CourseCard = ({ course }) => {
             <CardBody className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black relative group/card hover:shadow-2xl hover:shadow-blue-500/[0.1] dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-gray-200 w-full h-auto rounded-xl p-6 border transition-all duration-300">
                 
                 {/* Price Badge */}
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-4 right-1 z-10">
                     <CardItem translateZ="30">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                             course.price === 0 
