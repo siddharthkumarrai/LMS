@@ -221,7 +221,7 @@ export const fetchCourseDetails = createAsyncThunk(
         } catch (error: any) {
             const errorMessage = error?.response?.data?.message || "Failed to fetch course details.";
             toast.error(errorMessage);
-            return rejectWithValue(errorMessage);
+            return rejectWithValue(errorMessage);  
         }
     }
 );

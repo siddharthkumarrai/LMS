@@ -40,6 +40,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage ';
 function App() {
   return (
     <Routes>
+      <Route path="/course/:courseId/player" element={<CoursePlayer />} />
       {/* 1. Public Routes (jinke upar Navbar chahiye) */}
       <Route element={<HomeLayout />}>
         <Route path="/" element={<HomePage />} />
@@ -48,7 +49,6 @@ function App() {
         <Route path="/checkout/:courseId" element={<CheckoutPage />} />
         <Route path='/checkout/success' element={<PaymentSuccess />} />
         <Route path="/payment/failure" element={<PaymentFailure />} />
-        <Route path="/course/:courseId/player" element={<CoursePlayer />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/faqs" element={<FAQPage />} />
         <Route path="/blogs" element={<BlogPage />} />

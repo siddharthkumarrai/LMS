@@ -50,9 +50,6 @@ interface RootState {
 const CardContainer = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <motion.div
     className={`group/card ${className}`}
-    style={{ perspective: "1000px" }}
-    whileHover={{ scale: 1.02 }}
-    transition={{ duration: 0.3 }}
   >
     {children}
   </motion.div>
@@ -174,30 +171,6 @@ const CourseDetails: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-purple-400/20 rounded-full"
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -100, 0],
-              opacity: [0, 1, 0]
-            }}
-            transition={{
-              duration: 3 + i,
-              repeat: Infinity,
-              delay: i * 0.5
-            }}
-            style={{
-              left: `${20 + i * 15}%`,
-              top: `${30 + i * 10}%`
-            }}
-          />
-        ))}
-      </div>
-
       <div className="container mx-auto p-4 relative z-10">
         {/* Breadcrumb */}
         <motion.div 
@@ -460,7 +433,7 @@ const CourseDetails: React.FC = () => {
                   <video
                     src={modalLecture.lecture.lectureUrl}
                     controls
-                    autoPlay
+                    controlsList="nodownload"
                     className="rounded-xl w-full max-h-[60vh] mx-auto"
                     style={{ background: '#000' }}
                   />

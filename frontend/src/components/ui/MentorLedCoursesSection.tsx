@@ -89,20 +89,33 @@ const MentorLedCoursesSection = ({ className }: { className?: string }) => {
   const dispatch = useDispatch();
   
   // Redux state with proper type safety and fallbacks
-const { 
+  const { 
     allCourses = [], 
     searchLoading = false, 
     loading = false,
     error = null 
-} = useSelector((state: any) => {
+  } = useSelector((state: any) => {
     console.log('🔍 Current Redux course state:', state?.courses);
     return state?.courses || {};
-});
+  });
   
   const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
   const [categoryCourses, setCategoryCourses] = useState<{ [key: number]: Course[] }>({});
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Debug logging
   useEffect(() => {
@@ -121,12 +134,10 @@ const {
         console.log('Dispatching fetchAllCourses...');
         setIsInitialLoad(true);
         
-        // Dispatch without any search parameters to get all courses
         const resultAction = await dispatch(fetchAllCourses({ page: 1, limit: 10 }) as any);
         
         console.log('fetchAllCourses result:', resultAction);
         
-        // Check if the action was fulfilled
         if (fetchAllCourses.fulfilled.match(resultAction)) {
           console.log('Courses loaded successfully:', resultAction.payload);
         } else if (fetchAllCourses.rejected.match(resultAction)) {
@@ -155,14 +166,12 @@ const {
 
   // Function to fetch courses for a specific category
   const fetchCategoryCoursesOnHover = async (categoryId: number) => {
-    // If already fetched, don't fetch again
     if (categoryCourses[categoryId]) return;
 
     const category = courseCategories.find(cat => cat.id === categoryId);
     if (!category) return;
 
     try {
-      // Search using the first search term for the category
       const searchTerm = category.searchTerms[0];
       const resultAction = await dispatch(fetchAllCourses({ 
         searchQuery: searchTerm, 
@@ -181,10 +190,16 @@ const {
     }
   };
 
-  // Handle category hover
-  const handleCategoryHover = (categoryId: number) => {
-    setHoveredCategory(categoryId);
-    fetchCategoryCoursesOnHover(categoryId);
+  // Handle category hover/click
+  const handleCategoryInteraction = (categoryId: number) => {
+    if (isMobile) {
+      // On mobile, navigate directly to category
+      handleViewAllCategory(courseCategories.find(cat => cat.id === categoryId));
+    } else {
+      // On desktop, show hover tooltip
+      setHoveredCategory(categoryId);
+      fetchCategoryCoursesOnHover(categoryId);
+    }
   };
 
   // Handle course navigation
@@ -194,7 +209,6 @@ const {
 
   // Handle view all category courses
   const handleViewAllCategory = (category: any) => {
-    // Navigate to courses page with search filter
     navigate(`/all-courses`);
   };
 
@@ -206,7 +220,7 @@ const {
 
   // Get enrollment count (placeholder since not in schema)
   const getEnrollmentCount = () => {
-    return `${Math.floor(Math.random() * 1000) + 100}+ Enrolled`;
+    return `${Math.floor(Math.random() * 1000) + 100}+`;
   };
 
   // Get creator name
@@ -243,10 +257,11 @@ const {
   });
 
   return (
-    <section id='courses'  className={cn(
-      "relative w-full bg-gradient-to-b from-gray-50 to-white py-16 md:py-24",
+    <section id='courses' className={cn(
+      "relative w-full bg-gradient-to-b from-gray-50 to-white py-8 sm:py-12 md:py-16 lg:py-24",
+      className
     )}>
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8 max-w-7xl">
         
         {/* Header */}
         <motion.div
@@ -254,145 +269,171 @@ const {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-14">
+          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-6 sm:mb-8 md:mb-14">
             <span>🌟</span>
-            Explore Our Courses
+            <span className="whitespace-nowrap">Explore Our Courses</span>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 px-2">
             Mentor-Led Courses
           </h1>
-          <p className="text-gray-600 text-lg md:text-xl max-w-3xl mx-auto">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl max-w-3xl mx-auto px-2">
             Choose your career path & explore our wide range of specialized courses that helps you grow.
           </p>
         </motion.div>
 
-        {/* Navbar Style Categories with Tooltip/Carousel */}
-        <div className="relative mb-16">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-              {courseCategories.map((category) => (
-                <div
-                  key={category.id}
-                  className="relative"
-                  onMouseEnter={() => handleCategoryHover(category.id)}
-                  onMouseLeave={() => setHoveredCategory(null)}
-                >
-                  {/* Category Button/Card */}
+        {/* Categories Section */}
+        <div className="relative mb-8 sm:mb-12 md:mb-16">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 p-3 sm:p-4 md:p-6">
+            
+            {/* Mobile: Horizontal Scrollable Categories */}
+            <div className="block sm:hidden">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {courseCategories.map((category) => (
                   <motion.div
-                    className="group bg-gray-50 hover:bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-all duration-300 cursor-pointer"
-                    whileHover={{ scale: 1.02 }}
-                    onClick={() => handleViewAllCategory(category)}
+                    key={category.id}
+                    className="flex-shrink-0 w-32"
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleCategoryInteraction(category.id)}
                   >
-                    {/* Icon */}
-                    <div className={`w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-white text-xl mb-3 group-hover:scale-105 transition-transform duration-300`}>
-                      {category.icon}
+                    <div className="bg-gray-50 hover:bg-white rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-all duration-300 cursor-pointer text-center">
+                      <div className={`w-8 h-8 ${category.color} rounded-lg flex items-center justify-center text-white text-sm mx-auto mb-2`}>
+                        {category.icon}
+                      </div>
+                      <h3 className="text-xs font-semibold text-gray-900 line-clamp-2 min-h-[2rem] flex items-center justify-center">
+                        {category.title}
+                      </h3>
                     </div>
-
-                    {/* Title */}
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {category.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      {category.description}
-                    </p>
                   </motion.div>
+                ))}
+              </div>
+            </div>
 
-                  {/* Tooltip/Carousel on Hover */}
-                  <AnimatePresence>
-                    {hoveredCategory === category.id && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 z-50"
-                        style={{ 
-                          left: category.id > 4 ? 'auto' : '0',
-                          right: category.id > 4 ? '0' : 'auto'
-                        }}
-                      >
-                        <div className="mb-3">
-                          <h4 className="font-semibold text-gray-900 mb-1">{category.title}</h4>
-                          <p className="text-xs text-gray-600">Available Courses</p>
-                        </div>
-                        
-                        <div className="space-y-3 max-h-60 overflow-y-auto">
-                          {searchLoading ? (
-                            // Loading skeleton
-                            Array(3).fill(0).map((_, i) => (
-                              <div key={i} className="flex gap-3 p-2 rounded-lg animate-pulse">
-                                <div className="w-16 h-10 bg-gray-300 rounded-lg flex-shrink-0"></div>
-                                <div className="flex-1">
-                                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                                  <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-                                </div>
-                              </div>
-                            ))
-                          ) : categoryCourses[category.id] && categoryCourses[category.id].length > 0 ? (
-                            categoryCourses[category.id].map((course, index) => (
-                              <div 
-                                key={course._id} 
-                                className="flex gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                                onClick={() => handleCourseClick(course._id)}
-                              >
-                                <img
-                                  src={course.thumbnail?.thumbnailUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(course.title)}&background=f3f4f6&color=374151&size=64x40&format=png`}
-                                  alt={course.title}
-                                  className="w-16 h-10 object-cover rounded-lg flex-shrink-0"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(course.title)}&background=f3f4f6&color=374151&size=64x40&format=png`;
-                                  }}
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <h5 className="text-sm font-medium text-gray-900 line-clamp-1">{course.title}</h5>
-                                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                    <span>{calculateDuration(course.lectures)}</span>
-                                    <span>•</span>
-                                    <span>{getEnrollmentCount()}</span>
+            {/* Tablet & Desktop: Grid Layout with Hover Tooltips */}
+            <div className="hidden sm:block">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 md:gap-4">
+                {courseCategories.map((category) => (
+                  <div
+                    key={category.id}
+                    className="relative"
+                    onMouseEnter={() => !isMobile && handleCategoryInteraction(category.id)}
+                    onMouseLeave={() => !isMobile && setHoveredCategory(null)}
+                  >
+                    {/* Category Button/Card */}
+                    <motion.div
+                      className="group bg-gray-50 hover:bg-white rounded-xl p-3 md:p-4 border border-gray-200 hover:border-gray-300 transition-all duration-300 cursor-pointer"
+                      whileHover={{ scale: 1.02 }}
+                      onClick={() => handleViewAllCategory(category)}
+                    >
+                      {/* Icon */}
+                      <div className={`w-10 h-10 md:w-12 md:h-12 ${category.color} rounded-lg flex items-center justify-center text-white text-lg md:text-xl mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-300 mx-auto`}>
+                        {category.icon}
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-xs md:text-sm font-semibold text-gray-900 mb-1 md:mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors text-center min-h-[2rem] md:min-h-[2.5rem] flex items-center justify-center">
+                        {category.title}
+                      </h3>
+
+                      {/* Description - Hidden on mobile and small tablets */}
+                      <p className="text-xs text-gray-600 line-clamp-2 hidden lg:block text-center">
+                        {category.description}
+                      </p>
+                    </motion.div>
+
+                    {/* Desktop Tooltip/Carousel on Hover */}
+                    <AnimatePresence>
+                      {hoveredCategory === category.id && !isMobile && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 z-50"
+                          style={{ 
+                            left: category.id > 4 ? 'auto' : '0',
+                            right: category.id > 4 ? '0' : 'auto'
+                          }}
+                        >
+                          <div className="mb-3">
+                            <h4 className="font-semibold text-gray-900 mb-1">{category.title}</h4>
+                            <p className="text-xs text-gray-600">Available Courses</p>
+                          </div>
+                          
+                          <div className="space-y-3 max-h-60 overflow-y-auto">
+                            {searchLoading ? (
+                              Array(3).fill(0).map((_, i) => (
+                                <div key={i} className="flex gap-3 p-2 rounded-lg animate-pulse">
+                                  <div className="w-16 h-10 bg-gray-300 rounded-lg flex-shrink-0"></div>
+                                  <div className="flex-1">
+                                    <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                                    <div className="h-3 bg-gray-300 rounded w-3/4"></div>
                                   </div>
-                                  <div className="flex items-center justify-between mt-1">
-                                    <span className="text-xs text-gray-600">by {getCreatorName(course.createdBy)}</span>
-                                    <span className="text-sm font-semibold text-green-600">{formatPrice(course.price)}</span>
-                                  </div>
-                                  {getBadge(course, index) && (
-                                    <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full mt-1 ${
-                                      getBadge(course, index) === 'Bestseller' ? 'bg-green-100 text-green-700' :
-                                      getBadge(course, index) === 'Popular' ? 'bg-blue-100 text-blue-700' :
-                                      getBadge(course, index) === 'New' ? 'bg-purple-100 text-purple-700' :
-                                      getBadge(course, index) === 'High Demand' ? 'bg-red-100 text-red-700' :
-                                      'bg-gray-100 text-gray-700'
-                                    }`}>
-                                      {getBadge(course, index)}
-                                    </span>
-                                  )}
                                 </div>
+                              ))
+                            ) : categoryCourses[category.id] && categoryCourses[category.id].length > 0 ? (
+                              categoryCourses[category.id].map((course, index) => (
+                                <div 
+                                  key={course._id} 
+                                  className="flex gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                                  onClick={() => handleCourseClick(course._id)}
+                                >
+                                  <img
+                                    src={course.thumbnail?.thumbnailUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(course.title)}&background=f3f4f6&color=374151&size=64x40&format=png`}
+                                    alt={course.title}
+                                    className="w-16 h-10 object-cover rounded-lg flex-shrink-0"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(course.title)}&background=f3f4f6&color=374151&size=64x40&format=png`;
+                                    }}
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className="text-sm font-medium text-gray-900 line-clamp-1">{course.title}</h5>
+                                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                      <span>{calculateDuration(course.lectures)}</span>
+                                      <span>•</span>
+                                      <span>{getEnrollmentCount()}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-1">
+                                      <span className="text-xs text-gray-600">by {getCreatorName(course.createdBy)}</span>
+                                      <span className="text-sm font-semibold text-green-600">{formatPrice(course.price)}</span>
+                                    </div>
+                                    {getBadge(course, index) && (
+                                      <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full mt-1 ${
+                                        getBadge(course, index) === 'Bestseller' ? 'bg-green-100 text-green-700' :
+                                        getBadge(course, index) === 'Popular' ? 'bg-blue-100 text-blue-700' :
+                                        getBadge(course, index) === 'New' ? 'bg-purple-100 text-purple-700' :
+                                        getBadge(course, index) === 'High Demand' ? 'bg-red-100 text-red-700' :
+                                        'bg-gray-100 text-gray-700'
+                                      }`}>
+                                        {getBadge(course, index)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-center py-4 text-gray-500 text-sm">
+                                No courses found
                               </div>
-                            ))
-                          ) : (
-                            <div className="text-center py-4 text-gray-500 text-sm">
-                              No courses found
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <button 
-                            className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
-                            onClick={() => handleViewAllCategory(category)}
-                          >
-                            View All {category.title} →
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
+                            )}
+                          </div>
+                          
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <button 
+                              className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                              onClick={() => handleViewAllCategory(category)}
+                            >
+                              View All {category.title} →
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -403,44 +444,44 @@ const {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"
+          className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 overflow-hidden"
         >
           {/* Section Header */}
-          <div className="p-8 pb-4 border-b border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="p-4 sm:p-6 md:p-8 pb-3 sm:pb-4 border-b border-gray-100">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
               Featured Courses
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm sm:text-base">
               Explore our most popular mentor-led courses with hands-on projects
             </p>
           </div>
 
-          {/* Horizontal Scrolling Course Cards */}
-          <div className="p-8">
+          {/* Course Cards */}
+          <div className="p-4 sm:p-6 md:p-8">
             {shouldShowLoading ? (
-              // Loading skeleton for initial load
-              <div className="flex gap-6 overflow-x-auto pb-4">
+              // Loading skeleton
+              <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4">
                 {Array(5).fill(0).map((_, index) => (
-                  <div key={index} className="flex-shrink-0 w-80 h-[420px] bg-gray-200 rounded-2xl animate-pulse"></div>
+                  <div key={index} className="flex-shrink-0 w-64 sm:w-72 md:w-80 h-80 sm:h-96 md:h-[420px] bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
                 ))}
               </div>
             ) : shouldShowNoCourses ? (
               // No courses message
-              <div className="text-center py-12">
-                <div className="text-gray-500 text-lg mb-4">No courses available at the moment</div>
-                <p className="text-gray-400">Please check back later for new courses</p>
+              <div className="text-center py-8 sm:py-12">
+                <div className="text-gray-500 text-base sm:text-lg mb-4">No courses available at the moment</div>
+                <p className="text-gray-400 text-sm sm:text-base">Please check back later for new courses</p>
                 <button 
                   onClick={() => {
                     console.log('Retry button clicked');
                     dispatch(fetchAllCourses({ page: 1, limit: 10 }) as any);
                   }}
-                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base"
                 >
                   Retry Loading Courses
                 </button>
               </div>
             ) : (
-              <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 scrollbar-hide">
                 {featuredCourses.map((course, courseIndex) => (
                   <motion.div
                     key={course._id}
@@ -448,11 +489,11 @@ const {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: courseIndex * 0.1 }}
                     viewport={{ once: true }}
-                    className="flex-shrink-0 w-80 h-[420px] bg-gray-50 rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group flex flex-col cursor-pointer"
+                    className="flex-shrink-0 w-64 sm:w-72 md:w-80 h-auto bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 group flex flex-col cursor-pointer"
                     onClick={() => handleCourseClick(course._id)}
                   >
                     {/* Course Image */}
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden">
                       <img
                         src={course.thumbnail?.thumbnailUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(course.title)}&background=f3f4f6&color=374151&size=320x192&format=png`}
                         alt={course.title}
@@ -465,8 +506,8 @@ const {
                       
                       {/* Badge */}
                       {getBadge(course, courseIndex) && (
-                        <div className="absolute top-4 left-4">
-                          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                        <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
+                          <span className={`px-2 sm:px-3 py-1 text-xs font-semibold rounded-full ${
                             getBadge(course, courseIndex) === 'Bestseller' ? 'bg-green-500 text-white' :
                             getBadge(course, courseIndex) === 'Popular' ? 'bg-blue-500 text-white' :
                             getBadge(course, courseIndex) === 'New' ? 'bg-purple-500 text-white' :
@@ -480,8 +521,8 @@ const {
                     </div>
 
                     {/* Course Content */}
-                    <div className="p-6 flex flex-col flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 h-12 flex items-start">
+                    <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3rem] sm:min-h-[3.5rem] flex items-start">
                         {course.title}
                       </h3>
                       
@@ -490,28 +531,29 @@ const {
                         by {getCreatorName(course.createdBy)}
                       </p>
                       
-                      <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {/* Course Stats */}
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600 mb-3">
+                        <div className="flex items-center gap-2">
                           <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <span className="truncate">{calculateDuration(course.lectures)}</span>
                         </div>
-                        <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                        <div className="flex items-center gap-2">
                           <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                           </svg>
-                          <span className="truncate">{getEnrollmentCount()}</span>
+                          <span className="truncate">{getEnrollmentCount()} Enrolled</span>
                         </div>
                       </div>
 
                       {/* Price */}
                       <div className="mb-4">
-                        <span className="text-2xl font-bold text-green-600">{formatPrice(course.price)}</span>
+                        <span className="text-xl sm:text-2xl font-bold text-green-600">{formatPrice(course.price)}</span>
                       </div>
 
                       <button 
-                        className="w-full bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors duration-200 mt-auto"
+                        className="w-full bg-gray-900 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-medium hover:bg-gray-800 transition-colors duration-200 mt-auto text-sm sm:text-base"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCourseClick(course._id);
@@ -528,15 +570,13 @@ const {
 
           {/* View All Button */}
           <Link to={`/all-courses`}>          
-          <div className="text-gray-700 font-medium hover:text-gray-900 
-              transition-colors flex items-center gap-2 px-8 pb-8">
+            <div className="text-gray-700 font-medium hover:text-gray-900 transition-colors flex items-center justify-center gap-2 px-4 sm:px-8 pb-6 sm:pb-8 text-sm sm:text-base">
               View All Courses
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-          </div>
+            </div>
           </Link>
-
         </motion.div>
       </div>
 
@@ -560,6 +600,11 @@ const {
           display: -webkit-box;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
+        }
+        @media (max-width: 640px) {
+          .container {
+            max-width: 100%;
+          }
         }
       `}</style>
     </section>

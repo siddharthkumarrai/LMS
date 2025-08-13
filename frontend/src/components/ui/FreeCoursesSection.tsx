@@ -180,9 +180,9 @@ const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index
         <CardBody className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black relative group/card hover:shadow-2xl hover:shadow-emerald-500/[0.1] dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-gray-200 w-full h-auto rounded-xl p-6 border transition-all duration-300">
           
           {/* Price Badge */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-5 right-1 z-10">
             <CardItem translateZ="30">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg flex items-center gap-1">
+              <span className="px-3 py-1 rounded-[0.5rem] text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
                 {formatPrice(course.price)}
               </span>
@@ -458,43 +458,22 @@ const FreeCoursesSection: React.FC = () => {
             <Sparkles className="w-4 h-4" />
           </motion.div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-            Start Your Journey With{' '}
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+            Still Confused?{' '}
             <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
-              Free Premium Courses!
+              Get Started With Free Courses!
             </span>
           </h2>
           
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
             Get instant access to our expertly crafted courses. No credit card required, just pure learning excellence!
           </p>
-
-          {/* CTA Stats */}
-          <motion.div 
-            className="flex justify-center gap-8 mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-600">{freeCourses.length}+</div>
-              <div className="text-sm text-gray-600">Free Courses</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-600">10k+</div>
-              <div className="text-sm text-gray-600">Happy Students</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-600">4.8★</div>
-              <div className="text-sm text-gray-600">Average Rating</div>
-            </div>
-          </motion.div>
         </motion.div>
 
         {/* Filter Tabs */}
         {!freeCoursesLoading && !error && freeCourses.length > 0 && filterTabs.length > 1 && (
           <motion.div 
-            className="flex flex-wrap justify-center gap-3 mb-8"
+            className="flex flex-wrap justify-start gap-3 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -503,7 +482,7 @@ const FreeCoursesSection: React.FC = () => {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
-                className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${
+                className={`px-5 py-2.5 rounded-[0.5rem] font-semibold text-sm transition-all duration-300 ${
                   activeFilter === tab.id
                     ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg scale-105'
                     : 'bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 hover:shadow-md'
@@ -558,25 +537,6 @@ const FreeCoursesSection: React.FC = () => {
                   ))}
                 </AnimatePresence>
               </div>
-              
-              {/* View All Button */}
-              <motion.div 
-                className="flex justify-center mt-12"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-              >
-                <motion.button
-                  onClick={handleViewAll}
-                  className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Eye className="w-5 h-5" />
-                  Explore All Courses
-                  <ArrowRight className="w-5 h-5" />
-                </motion.button>
-              </motion.div>
             </>
           )}
         </motion.div>
