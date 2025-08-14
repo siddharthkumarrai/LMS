@@ -17,7 +17,7 @@ const isLoggedIn = function (req, res, next) {
         req.user = userDetails
         next()
     } catch (error) {
-        next(error)
+        return next(new AppError("Unauthenticated, please login again", 401));
     }
 }
 

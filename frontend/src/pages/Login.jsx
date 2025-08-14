@@ -31,16 +31,27 @@ const Login = () => {
         const loadingToast = toast.loading("Logging in...");
         try {
             const response = await axiosInstance.post("/user/login", loginData);
-            if (response.data?.success) {
+            // 1. Backend se token aur user data ko alag-alag nikalo
+            const token = response?.data?.token;
+            const user = response?.data?.user;
+
+            // 2. Check karo ki response successful hai aur token/user dono maujood hain
+            if (response?.data?.success && token && user) {
                 toast.dismiss(loadingToast);
                 toast.success("Login successful!");
-                dispatch(
-                    login({
-                        token: response.data.token,   
-                        ...response.data.user        
-                    })
-                );
-                navigate("/course/create");
+
+                // 3. login action ko sahi format mein data bhejo
+                dispatch(login({ token, ...user }));
+
+                // User ko uske role ke hisaab se redirect karo
+                if (user.role === 'admin') {
+                    navigate("/dashboard");
+                } else {
+                    navigate("/");
+                }
+            } else {
+                toast.dismiss(loadingToast);
+                toast.error(response?.data?.message || "Login failed. Invalid credentials or server error.");
             }
         } catch (error) {
             toast.dismiss(loadingToast);

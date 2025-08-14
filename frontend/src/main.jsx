@@ -10,12 +10,8 @@ import ScrollToTop from './components/ScrollToTop';
 import { Toaster } from 'react-hot-toast'
 import store from './redux/store.ts'
 
-
-import { setupAxiosInterceptors } from './Helpers/axiosInstance.js';
-
-
+import { setupAxiosInterceptors } from './Helpers/axiosInstance'; 
 setupAxiosInterceptors(store);
-console.log(import.meta.env.VITE_BACKEND_API_URL);
 
 
 

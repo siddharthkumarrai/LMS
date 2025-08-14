@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router'; // Corrected to react-router-dom
+import { Link, useNavigate, useLocation  } from 'react-router'; // Corrected to react-router-dom
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { login } from '../redux/features/auth/authSlice.ts';
@@ -12,6 +12,7 @@ const Signup = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [previewImage, setPreviewImage] = useState("");
+    const location = useLocation(); 
     const [errors, setErrors] = useState({});
     const [signupData, setSignupData] = useState({
         name: '',
@@ -111,12 +112,20 @@ const Signup = () => {
         const loadingToast = toast.loading("Creating account...");
         try {
             const response = await axiosInstance.post(apiEndpoint, formData);
+
+            const token = response?.data?.token;
+            const user = response?.data?.user;
             
-            if (response.data?.success) {
+            if (response?.data?.success && token && user) {
                 toast.dismiss(loadingToast);
                 toast.success("Account created successfully!");
-                dispatch(login(response.data.userData));
+                
+                dispatch(login({ token, ...user }));
+                
                 navigate("/");
+            } else {
+                toast.dismiss(loadingToast);
+                toast.error(response?.data?.message || "Signup failed. Please try again.");
             }
         } catch (error) {
             toast.dismiss(loadingToast);

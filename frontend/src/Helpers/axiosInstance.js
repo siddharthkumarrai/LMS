@@ -24,7 +24,7 @@ export const setupAxiosInterceptors = (store) => {
         (response) => response,
         (error) => {
             const status = error?.response?.status;
-            if (status === 401) {
+            if (status === 401  || status === 500) {
                 // Yeh function store ko use karke user ko logout kar dega
                 store.dispatch(logout());
                 toast.error("Session expired, please login again.");

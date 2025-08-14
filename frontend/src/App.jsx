@@ -37,7 +37,20 @@ import FAQPage from './pages/FAQPage';
 import BlogPage from './pages/BlogPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage ';
 
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { verifySession } from './redux/features/auth/authSlice'; 
+
+
 function App() {
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(verifySession());
+    }
+  }, [dispatch, isLoggedIn]);
+
   return (
     <Routes>
       <Route path="/course/:courseId/player" element={<CoursePlayer />} />

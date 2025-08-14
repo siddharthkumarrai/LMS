@@ -110,6 +110,21 @@ export const changePassword = createAsyncThunk(
     }
 );
 
+export const verifySession = createAsyncThunk(
+    "auth/verifySession",
+    async (_, { rejectWithValue }) => {
+        try {
+            // Yeh API call check karegi ki token valid hai ya nahi
+            const response = await axiosInstance.get("/user/me"); 
+            return response.data.user; // Agar token sahi hai, to user data return hoga
+        } catch (error: any) {
+            // Agar token galat hai, to interceptor logout kar dega.
+            // Hum yahan se bas error message pass kar rahe hain.
+            return rejectWithValue(error?.response?.data?.message || "Session verification failed");
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -136,6 +151,10 @@ const authSlice = createSlice({
             state.role = "";
             state.token = null;
             state.data = null;
+
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login'; 
+            }
         },
 
         clearLoading: (state) => {
@@ -169,7 +188,21 @@ const authSlice = createSlice({
 
             .addCase(changePassword.pending, (state) => { state.loading = true; })
             .addCase(changePassword.fulfilled, (state) => { state.loading = false; })
-            .addCase(changePassword.rejected, (state) => { state.loading = false; });
+            .addCase(changePassword.rejected, (state) => { state.loading = false; })
+            
+            .addCase(verifySession.fulfilled, (state, action: PayloadAction<UserProfile>) => {
+                // Agar session valid hai, to state ko dobara aache se set kar do
+                state.isLoggedIn = true;
+                state.data = action.payload;
+                state.role = action.payload.role;
+            })
+            .addCase(verifySession.rejected, (state) => {
+                // Interceptor ne already logout kar diya hoga, hum yahan state saaf kar sakte hain
+                state.isLoggedIn = false;
+                state.data = null;
+                state.role = '';
+                state.token = null;
+            })
     },
 });
 

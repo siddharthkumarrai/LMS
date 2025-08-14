@@ -496,7 +496,8 @@ const FreeCoursesSection: React.FC = () => {
                   delay: 0.5 + index * 0.05,
                 }}
               >
-                {tab.label} ({tab.count})
+                {tab.label} 
+                ({tab.count})
               </motion.button>
             ))}
           </motion.div>
