@@ -117,6 +117,13 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
+  const removeCoupon = () => {
+    setDiscount(0);
+    setAppliedCouponCode("");
+    setCoupon("");
+    toast.success("Coupon removed successfully");
+  };
+
   const handleCheckout = async () => {
     if (!token) {
       toast.error("Please log in.");
@@ -431,17 +438,31 @@ const CheckoutPage: React.FC = () => {
                       className="flex-1 px-3 py-2 sm:py-3 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-h-[44px]"
                       disabled={!!discount}
                     />
-                    <button
-                      disabled={!!discount}
-                      onClick={applyCoupon}
-                      className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm transition-all min-h-[44px] whitespace-nowrap ${discount
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 cursor-not-allowed"
-                        : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                        }`}
-                      type="button"
-                    >
-                      {discount ? 'Applied' : 'Apply'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={!!discount}
+                        onClick={applyCoupon}
+                        className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm transition-all min-h-[44px] whitespace-nowrap ${discount
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 cursor-not-allowed"
+                          : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                          }`}
+                        type="button"
+                      >
+                        {discount ? 'Applied' : 'Apply'}
+                      </button>
+                      {discount > 0 && (
+                        <button
+                          onClick={removeCoupon}
+                          className="px-3 py-2 sm:py-3 rounded-lg font-semibold text-sm transition-all min-h-[44px] bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transform hover:scale-105"
+                          type="button"
+                          title="Remove coupon"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {discount > 0 && (
                     <div className="flex items-center gap-2 text-green-600 text-xs sm:text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">

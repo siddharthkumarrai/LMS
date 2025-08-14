@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import {
     BarChart3, BookOpen, Calendar, CreditCard, GraduationCap, HelpCircle,
     Home, Library, MessageSquare, Moon, Settings, Sun, Users, UserCheck,
-    Building, FileText, Menu, X, CircleUser 
+    Building, FileText, Menu, X, CircleUser, LayoutDashboard
 } from "lucide-react"
 import { cn } from "../lib/utils" // Path theek kar lena
 
@@ -57,7 +57,8 @@ export default function LMSSidebar() {
     // Admin navigation links
     const adminLinks = {
         mainMenu: [
-            { label: "Dashboard", href: "/dashboard", icon: <Home className="h-5 w-5" /> },
+            { label: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
+            { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
             { label: "My Profile", href: "/me", icon: <CircleUser className="h-5 w-5" /> },
         ],
         academicManagement: [
@@ -74,7 +75,8 @@ export default function LMSSidebar() {
     // Regular user navigation links
     const userLinks = {
         mainMenu: [
-            { label: "Dashboard", href: "/dashboard", icon: <Home className="h-5 w-5" /> },
+            { label: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
+            { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
             { label: "My Profile", href: "/me", icon: <CircleUser className="h-5 w-5" /> },
             { label: "My Courses", href: "/my-courses", icon: <MessageSquare className="h-5 w-5" /> },
         ],
