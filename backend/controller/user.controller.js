@@ -73,7 +73,8 @@ const register = async function (req, res, next, role = "user") {
         return res.status(200).json({
             success: true,
             message: "user successfully registerd",
-            userData
+            user: userData,
+            token: token
         })
 
     } catch (error) {
