@@ -24,10 +24,21 @@ export function NavbarComponent() {
   
   // Safe avatar access with multiple fallback paths
   const getAvatarUrl = (user) => {
-     return user.avatar.secureUrl;
+    if (!user) return null;
+    
+    // Try different possible avatar paths
+    if (user?.avatar?.secureUrl) return user.avatar.secureUrl;
+    if (user?.avatar?.secure_url) return user.avatar.secure_url;
+    if (user?.avatar?.url) return user.avatar.url;
+    if (user?.profilePicture) return user.profilePicture;
+    if (user?.profileImage) return user.profileImage;
+    if (user?.image) return user.image;
+    if (user?.photo) return user.photo;
+    
+    return null;
   };
 
-  let avatarUrl = getAvatarUrl(user);
+  const avatarUrl = getAvatarUrl(user);
   console.log("User object:", user);
   console.log("Avatar URL:", avatarUrl);
 
@@ -165,6 +176,7 @@ export function NavbarComponent() {
       } : undefined}
     >
       <div className="relative">
+        <BorderBeam />
         <button
           type="button"
           onClick={onClick}
@@ -172,16 +184,13 @@ export function NavbarComponent() {
           aria-label="User profile menu"
         >
           {avatarUrl && !imageError ? (
-            <>
-            <BorderBeam />
             <img
               src={avatarUrl}
               alt={user?.name || "User"}
               className="w-full h-full rounded-full object-cover"
               onError={handleImageError}
               onLoad={() => console.log("Image loaded successfully")}
-              />
-              </>
+            />
           ) : (
             <span className="font-medium text-sm">
               {getUserInitials(user?.name)}
@@ -201,18 +210,15 @@ export function NavbarComponent() {
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0 relative">
-                
+                <BorderBeam />
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm overflow-hidden">
                   {avatarUrl && !imageError ? (
-                    <>
                     <img
                       src={avatarUrl}
                       alt={user?.name || "User"}
                       className="w-full h-full rounded-full object-cover"
                       onError={handleImageError}
                     />
-                    <BorderBeam />
-                    </>
                   ) : (
                     <span className="font-medium text-sm">
                       {getUserInitials(user?.name)}
@@ -234,6 +240,7 @@ export function NavbarComponent() {
           <div className="py-1">
             {profileMenuItems.map((item, index) => (
               <div key={index} className="relative">
+                <BorderBeam />
                 <button
                   type="button"
                   onClick={(e) => {
@@ -318,17 +325,15 @@ export function NavbarComponent() {
                 {/* Mobile User Info */}
                 <div className="flex items-center space-x-3 px-2 py-3 mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="relative">
+                    <BorderBeam />
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium overflow-hidden">
                       {avatarUrl && !imageError ? (
-                        <>
-                        <BorderBeam />
                         <img
-                        src={avatarUrl}
-                        alt={user?.name || "User"}
-                        className="w-full h-full rounded-full object-cover"
-                        onError={handleImageError}
+                          src={avatarUrl}
+                          alt={user?.name || "User"}
+                          className="w-full h-full rounded-full object-cover"
+                          onError={handleImageError}
                         />
-                        </>
                       ) : (
                         <span className="font-medium">
                           {getUserInitials(user?.name)}
