@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef } from 'react';
+import { Link } from 'react-router';
 import { motion, useInView } from 'framer-motion';
 import { FaFigma, FaPython, FaSalesforce, FaReact } from 'react-icons/fa';
 
@@ -233,7 +234,9 @@ const MasterclassSection: React.FC = () => {
                 className="w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-4 bg-[#ff6b4a] text-white font-bold rounded-lg shadow-lg hover:bg-[#ff5533] transition-all duration-300 relative z-20 group"
               >
                 <span className="flex items-center justify-center gap-2">
+                   <Link to="/all-courses" style={{ textDecoration: 'none' }}>
                   <span className="text-sm sm:text-base md:text-lg">Explore Masterclass</span>
+                  </Link>
                   <motion.svg
                     className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
                     fill="none"

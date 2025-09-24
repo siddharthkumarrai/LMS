@@ -32,7 +32,7 @@ interface Course {
   } | string;
 }
 
-// 3D Card Components (from AllCourses)
+// 3D Card Components
 const CardContainer = ({ children, className = '' }) => (
   <div className={`perspective-1000 ${className}`}>
     {children}
@@ -96,10 +96,10 @@ const cardVariants = {
   }
 };
 
-// Enhanced Course Card Component with All Courses-like experience
+// Enhanced Course Card Component
 const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index }) => {
   const [loadingCourseId, setLoadingCourseId] = useState(null);
-  const [actionType, setActionType] = useState(null); // 'explore' or 'enroll'
+  const [actionType, setActionType] = useState(null);
   const navigate = useNavigate();
 
   // Helper functions
@@ -131,12 +131,11 @@ const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index
     return 'Expert Instructor';
   };
 
-  // Handle explore course - navigate to course details page
+  // Handle explore course
   const handleExplore = (courseId) => {
     setLoadingCourseId(courseId);
     setActionType('explore');
     
-    // Add a small delay for better UX
     setTimeout(() => {
       navigate(`/course/${courseId}`);
       toast('📚 Loading course details...', {
@@ -148,14 +147,12 @@ const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index
     }, 300);
   };
 
-  // Handle enroll - navigate to checkout/enrollment page  
+  // Handle enroll
   const handleEnrollNow = (courseId) => {
     setLoadingCourseId(courseId);
     setActionType('enroll');
     
-    // Add a small delay for better UX
     setTimeout(() => {
-      // For free courses, navigate to a special free enrollment flow
       navigate(`/checkout/${courseId}?free=true`);
       toast.success('🎉 Redirecting to free enrollment...', {
         duration: 2000,
@@ -189,8 +186,8 @@ const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index
             </CardItem>
           </div>
 
-          {/* Category Badge */}
-          {course.category && (
+          {/* Category Badge - Only show if valid category exists */}
+          {course.category && course.category !== course.title && course.category.length < 30 && (
             <div className="absolute top-4 left-4 z-10">
               <CardItem translateZ="30">
                 <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-md text-xs font-medium">
@@ -212,7 +209,7 @@ const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index
             translateZ="60"
             className="text-gray-600 text-sm max-w-sm mt-2 dark:text-neutral-300 line-clamp-2 h-10"
           >
-            {course.description}
+            {course.description || "Learn from industry experts and advance your skills with this comprehensive course."}
           </CardItem>
           
           <CardItem translateZ="100" className="w-full mt-4">
@@ -268,7 +265,7 @@ const CourseCard: React.FC<{ course: Course; index: number }> = ({ course, index
             </CardItem>
           </div>
           
-          {/* Action Buttons - Same as All Courses */}
+          {/* Action Buttons */}
           <div className="flex justify-between items-center mt-6 gap-3">
             <CardItem
               translateZ={20}
@@ -338,7 +335,7 @@ const ErrorDisplay: React.FC<{ error: string; onRetry: () => void }> = ({ error,
   </motion.div>
 );
 
-// Loading Component with skeleton cards
+// Loading Component
 const LoadingDisplay: React.FC = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
     {[...Array(6)].map((_, index) => (
@@ -380,7 +377,6 @@ const EmptyState: React.FC = () => (
 
 // Main Component
 const FreeCoursesSection: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<string>('All');
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const dispatch = useDispatch();
@@ -401,20 +397,15 @@ const FreeCoursesSection: React.FC = () => {
     }
   }, [dispatch, freeCourses.length, freeCoursesLoading]);
 
-  // Get unique categories from courses
-  const categories = ['All', ...new Set(freeCourses.map((course: Course) => course.category).filter(Boolean))];
-  
-  const filterTabs = categories.map(cat => ({
-    id: cat,
-    label: cat,
-    count: cat === 'All' 
-      ? freeCourses.length 
-      : freeCourses.filter((c: Course) => c.category === cat).length
-  }));
-
-  const filteredCourses = activeFilter === 'All' 
-    ? freeCourses 
-    : freeCourses.filter((course: Course) => course.category === activeFilter);
+  // Debug: Log course data to check categories
+  useEffect(() => {
+    if (freeCourses.length > 0) {
+      console.log('Free courses data:', freeCourses.map(course => ({
+        title: course.title,
+        category: course.category
+      })));
+    }
+  }, [freeCourses]);
 
   const handleRetry = () => {
     dispatch(fetchFreeCourses());
@@ -470,36 +461,19 @@ const FreeCoursesSection: React.FC = () => {
           </p>
         </motion.div>
 
-        {/* Filter Tabs */}
-        {!freeCoursesLoading && !error && freeCourses.length > 0 && filterTabs.length > 1 && (
+        {/* Course Count Info */}
+        {!freeCoursesLoading && !error && freeCourses.length > 0 && (
           <motion.div 
-            className="flex flex-wrap justify-start gap-3 mb-8"
+            className="flex justify-start mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            {filterTabs.map((tab, index) => (
-              <motion.button
-                key={tab.id}
-                onClick={() => setActiveFilter(tab.id)}
-                className={`px-5 py-2.5 rounded-[0.5rem] font-semibold text-sm transition-all duration-300 ${
-                  activeFilter === tab.id
-                    ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-700 border border-gray-200 hover:border-emerald-500 hover:text-emerald-600 hover:shadow-md'
-                }`}
-                whileHover={{ scale: activeFilter === tab.id ? 1.05 : 1.08 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  delay: 0.5 + index * 0.05,
-                }}
-              >
-                {tab.label} 
-                ({tab.count})
-              </motion.button>
-            ))}
+            <div className="bg-gradient-to-r from-emerald-600 to-green-600 backdrop-blur-sm border border-gray-200  rounded-xl px-6 py-2 shadow-sm">
+              <span className="dark:text-white font-medium text-sm">
+                {freeCourses.length} free course{freeCourses.length !== 1 ? 's' : ''}
+              </span>
+            </div>
           </motion.div>
         )}
 
@@ -525,19 +499,39 @@ const FreeCoursesSection: React.FC = () => {
           )}
           
           {/* Courses Grid */}
-          {!freeCoursesLoading && !error && filteredCourses.length > 0 && (
+          {!freeCoursesLoading && !error && freeCourses.length > 0 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-300">
                 <AnimatePresence mode="wait">
-                  {filteredCourses.map((course: Course, index: number) => (
+                  {freeCourses.map((course: Course, index: number) => (
                     <CourseCard 
-                      key={`${activeFilter}-${course._id}`}
+                      key={course._id}
                       course={course} 
                       index={index}
                     />
                   ))}
                 </AnimatePresence>
               </div>
+
+              {/* View All Button */}
+              {freeCourses.length >= 6 && (
+                <motion.div 
+                  className="flex justify-center mt-12"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                >
+                  <motion.button
+                    onClick={handleViewAll}
+                    className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    View All Courses
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
+                </motion.div>
+              )}
             </>
           )}
         </motion.div>

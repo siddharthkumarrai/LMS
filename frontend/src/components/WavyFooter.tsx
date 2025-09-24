@@ -120,13 +120,13 @@ const PWSkillsFooter: React.FC = () => {
       {/* 50% Split Background with Wavy Divider */}
       <div className="absolute inset-0">
         {/* Top 50% - Color A (Orange/Pink gradient) */}
-        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500" />
+        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-br  via-red-900" />
         
         {/* Bottom 50% - Color B (Blue/Purple gradient) */}
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-br via-red-800" />
         
         {/* Wavy Divider at 50% height */}
-        <div className="absolute top-1/2 left-0 w-full h-24 -translate-y-12">
+        <div className="absolute top-1/2 left-0 w-full h-24 -translate-y-14">
           {/* Main wavy line */}
           <svg 
             className="absolute top-0 left-0 w-full h-full" 

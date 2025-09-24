@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -50,14 +51,14 @@ const testimonials: Testimonial[] = [
     image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758721761/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_bi2yztbi2yztbi2y-removebg-preview_rsizlm.png"
   },
   {
-    id: 3,
+    id: 2,
     quote: "SkillsLMS completely transformed my understanding of data science. The practical projects and expert mentorship helped me secure a position as a Data Scientist at a leading company...",
     name: "Apoorva Sharma",
     course: "Data Scientist, TCS",
     image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758722171/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_2j69g32j69g32j69-removebg-preview_qpcuwx.png"
   },
   {
-    id: 5,
+    id: 3,
     quote: "The Full Stack Development course at SkillsLMS was exactly what I needed to transition into tech. The hands-on projects and mentorship were outstanding...",
     name: "Priya Singh",
     course: "Full Stack Developer, Infosys",
@@ -71,7 +72,7 @@ const testimonials: Testimonial[] = [
     image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758722417/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_lr4vmalr4vmalr4v__1_-removebg-preview_fax5lb.png"
   },
   {
-    id: 2,
+    id: 5,
     quote: "The training I received at SkillsLMS proved instrumental for my role as a Technical Analyst at Mindtree. The comprehensive curriculum and hands-on approach were exactly what I needed...",
     name: "Pallavee Maurya",
     course: "Technical Analyst, Mindtree",
@@ -403,6 +404,7 @@ const StudentTestimonialsSection: React.FC<StudentTestimonialsSectionProps> = ({
           viewport={{ once: true }}
           className="text-center"
         >
+           <Link to="/all-courses" style={{ textDecoration: 'none' }}>
           <motion.button
             className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-base sm:text-lg rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg touch-manipulation"
             whileHover={{ scale: 1.05 }}
@@ -410,6 +412,7 @@ const StudentTestimonialsSection: React.FC<StudentTestimonialsSectionProps> = ({
           >
             Get Started →
           </motion.button>
+          </Link>
         </motion.div>
       </div>
     </section>
