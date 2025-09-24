@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Tags configuration with updated theme colors
@@ -210,14 +211,17 @@ const PWSkillsHeroSection = () => {
         </motion.p>
 
         {/* CTA Button - Theme matched */}
-        <motion.button
+        <Link to="/all-courses" style={{ textDecoration: 'none' }}>
+          <motion.button
           className="mt-8 px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:scale-105 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg border border-blue-500/30"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 1.0 }}
         >
           Get Started →
-        </motion.button>
+          </motion.button>
+        </Link>
+
       </div>
 
       {/* Additional theme elements */}

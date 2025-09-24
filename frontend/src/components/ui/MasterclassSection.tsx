@@ -42,7 +42,7 @@ const MasterclassSection: React.FC = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
 
-  const personImage = "https://pwskills.com/images/masterClass/masterclass_human_web.webp";
+  const personImage = "https://res.cloudinary.com/dnknslaku/image/upload/v1758721420/lms_instructor/Gemini_Generated_Image_kyserekyserekyse-removebg-preview_of35wm.png";
   
   // Responsive positioning for tech icons
   const techIcons = [

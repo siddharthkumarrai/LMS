@@ -47,35 +47,35 @@ const testimonials: Testimonial[] = [
     quote: "I am grateful to SkillsLMS for helping me transition into the role of a Web Developer Internship at CodeSoft. The course curriculum was well-structured and aligned perfectly wit...",
     name: "Devesh Kumar Meena",
     course: "Web Developer, Codesoft",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face"
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758721761/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_bi2yztbi2yztbi2y-removebg-preview_rsizlm.png"
+  },
+  {
+    id: 3,
+    quote: "SkillsLMS completely transformed my understanding of data science. The practical projects and expert mentorship helped me secure a position as a Data Scientist at a leading company...",
+    name: "Apoorva Sharma",
+    course: "Data Scientist, TCS",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758722171/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_2j69g32j69g32j69-removebg-preview_qpcuwx.png"
+  },
+  {
+    id: 5,
+    quote: "The Full Stack Development course at SkillsLMS was exactly what I needed to transition into tech. The hands-on projects and mentorship were outstanding...",
+    name: "Priya Singh",
+    course: "Full Stack Developer, Infosys",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758722369/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_rr81d7rr81d7rr81-removebg-preview_ifnimt.png"
+  },
+  {
+    id: 4,
+    quote: "From zero programming knowledge to landing my first job as a Software Engineer. SkillsLMS made this incredible journey possible with their structured learning approach...",
+    name: "Amit Kumar",
+    course: "Software Engineer, Wipro",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758722417/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_lr4vmalr4vmalr4v__1_-removebg-preview_fax5lb.png"
   },
   {
     id: 2,
     quote: "The training I received at SkillsLMS proved instrumental for my role as a Technical Analyst at Mindtree. The comprehensive curriculum and hands-on approach were exactly what I needed...",
     name: "Pallavee Maurya",
     course: "Technical Analyst, Mindtree",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face"
-  },
-  {
-    id: 3,
-    quote: "SkillsLMS completely transformed my understanding of data science. The practical projects and expert mentorship helped me secure a position as a Data Scientist at a leading company...",
-    name: "Rahul Sharma",
-    course: "Data Scientist, TCS",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face"
-  },
-  {
-    id: 4,
-    quote: "From zero programming knowledge to landing my first job as a Software Engineer. SkillsLMS made this incredible journey possible with their structured learning approach...",
-    name: "Priya Singh",
-    course: "Software Engineer, Wipro",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face"
-  },
-  {
-    id: 5,
-    quote: "The Full Stack Development course at SkillsLMS was exactly what I needed to transition into tech. The hands-on projects and mentorship were outstanding...",
-    name: "Amit Kumar",
-    course: "Full Stack Developer, Infosys",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face"
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/w_1000,c_fill,ar_1:1,g_auto,r_max,bo_5px_solid_red,b_rgb:262c35/v1758721938/lms_instructor/student_TESTIMONIAL/Gemini_Generated_Image_7hkaal7hkaal7hka-removebg-preview_cyijpj.png"
   }
 ];
 

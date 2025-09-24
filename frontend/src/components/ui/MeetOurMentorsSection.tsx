@@ -31,7 +31,7 @@ const mentors: Mentor[] = [
     company: "Skills",
     workExperience: "9+ Years",
     teachingExperience: "5+ Years",
-    image: "https://cdn.pwskills.com/user/profile_pictures/e22ee22b-5734-4b63-b0a4-24f385f2ca83.png",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/v1758719218/lms_instructor/Gemini_Generated_Image_eipitkeipitkeipi-removebg-preview_jpju6q.png",
     description: "Priyash Nigam is a digital marketing strategist with over 9 years of experience in performance marketing and brand building.",
     bgColor: "bg-pink-100",
     companyLogo: "/skills-logo.png"
@@ -43,7 +43,7 @@ const mentors: Mentor[] = [
     company: "Physics Wallah",
     workExperience: "4+ Years",
     teachingExperience: "4+ Years",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/v1758719541/lms_instructor/Gemini_Generated_Image_6ufeg6ufeg6ufeg6-removebg-preview_i1eyat.png",
     description: "AI ML tech | IIT Hyderabad | Data Structures | Problem Solving | Programming Languages.",
     bgColor: "bg-blue-100",
     companyLogo: "/physics-wallah-logo.png"
@@ -55,7 +55,7 @@ const mentors: Mentor[] = [
     company: "Google",
     workExperience: "4+ Years",
     teachingExperience: "7+ Years",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/v1758720028/lms_instructor/Gemini_Generated_Image_3p58in3p58in3p58-removebg-preview_uhpy3l.png",
     description: "Google Pay | Ex-LinkedIn Eng | CS6C Harvard | 7yrs teaching experience with hands-on projects.",
     bgColor: "bg-green-100",
     companyLogo: "/google-logo.png"
@@ -67,7 +67,7 @@ const mentors: Mentor[] = [
     company: "Physics Wallah",
     workExperience: "5+ Years",
     teachingExperience: "5+ Years",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/v1758720172/lms_instructor/Gemini_Generated_Image_w1fbssw1fbssw1fb-removebg-preview_akks5s.png",
     description: "A passionate doctor-turned-educator has a teaching experience of 7+ years, having taught over 10,000 students.",
     bgColor: "bg-purple-100",
     companyLogo: "/physics-wallah-logo.png"
@@ -79,7 +79,7 @@ const mentors: Mentor[] = [
     company: "Microsoft",
     workExperience: "6+ Years",
     teachingExperience: "4+ Years",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/v1758720312/lms_instructor/Gemini_Generated_Image_yroxnyroxnyroxny-removebg-preview_aeuxgh.png",
     description: "Microsoft Azure specialist with extensive experience in cloud computing and software architecture.",
     bgColor: "bg-yellow-100",
     companyLogo: "/microsoft-logo.png"
@@ -91,7 +91,7 @@ const mentors: Mentor[] = [
     company: "Amazon",
     workExperience: "8+ Years",
     teachingExperience: "6+ Years",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&h=200&fit=crop&crop=face",
+    image: "https://res.cloudinary.com/dnknslaku/image/upload/v1758720858/lms_instructor/Gemini_Generated_Image_dgrpljdgrpljdgrp-removebg-preview_npkxl7.png",
     description: "Leading data science initiatives at Amazon with focus on machine learning and AI solutions.",
     bgColor: "bg-indigo-100",
     companyLogo: "/amazon-logo.png"

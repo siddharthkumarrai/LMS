@@ -28,7 +28,7 @@ const tabs: Tab[] = [
     title: "Career Assistance",
     description: "Land the Role You Deserve with expert career guidance and mentorship.",
     icon: "🚀",
-    contentUrl: "https://cdn.pwskills.com/static/home/CAREER_ASSISTANCE_Final.mp4",
+    contentUrl: "https://www.shutterstock.com/shutterstock/videos/1103067001/preview/stock-footage-diverse-multicultural-students-studying-in-university-room-listening-to-a-young-multuethnic.mp4",
     isVideo: true
   },
   {
@@ -36,8 +36,8 @@ const tabs: Tab[] = [
     title: "Interactive Sessions",
     description: "Two-Way Learning for Career-Ready Skills with live interaction.",
     icon: "💬",
-    contentUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop",
-    isVideo: false
+    contentUrl: "https://www.shutterstock.com/shutterstock/videos/3720138687/preview/stock-footage-video-collage-of-different-people-working-online-on-the-internet-remote-work-on-a-smartphone-or.mp4",
+    isVideo: true
   }
 ];
 
