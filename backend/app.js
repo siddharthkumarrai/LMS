@@ -1,8 +1,10 @@
 import express, { urlencoded } from "express";
+import passport from "./config/passport.js"; // Import passport config
 import { pathToRegexp } from 'path-to-regexp';
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import session from "express-session";
 import userRoutes from "./routes/user.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import courseRoutes from "./routes/course.route.js";
@@ -19,6 +21,22 @@ pathToRegexp('/*splat') // Matches any path segments for wildcard route
 app.use(express.urlencoded({extended: true}))
 app.use(express.json());
 app.use(cookieParser());
+
+// Session configuration for Passport
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173/',
     credentials: true
@@ -132,13 +150,10 @@ app.get("/render-alive", (req, res) => {
 // =======================================================
 
 
-
-
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/courses",courseRoutes)
 app.use("/api/v1/payments",paymentRoutes)
 app.use('/api/v1/stats', statsRoutes);
-
 app.use('/api/v1/contact', contactRoutes);
 
 app.use("/ping",(req,res)=>{

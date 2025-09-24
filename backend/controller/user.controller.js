@@ -22,15 +22,19 @@ const register = async function (req, res, next, role = "user") {
             return next(new AppError("user already exists", 400));
         };
 
+        // Default avatar setup - use first character of name if no image provided
+        const firstChar = name.charAt(0).toUpperCase();
+        let defaultAvatar = {
+            publicId: `default_${email}`,
+            secureUrl: `https://ui-avatars.com/api/?name=${firstChar}&background=3b82f6&color=ffffff&size=250&font-size=0.6&bold=true&format=png`
+        };
+
         let user = await UserModel({
             name,
             email,
             password,
             role,
-            avatar: {
-                publicId: email,
-                secureUrl: `https://res.cloudinary.com/dnknslaku/image/upload/v1753346861/lms/gcjaot4wf4z9q1hmx4mx.jpg`
-            }
+            avatar: defaultAvatar
         });
 
         if (!user) {
@@ -39,23 +43,31 @@ const register = async function (req, res, next, role = "user") {
 
         console.log(req.file)
 
+        // Only process image if file is provided
         if (req.file) {
             try {
-                const result = await cloudinary.v2.uploader.upload(req.file.path, { folder: "lms/avatar", width: 250, height: 250, gravity: "face", crop: "fill" })
+                const result = await cloudinary.v2.uploader.upload(req.file.path, { 
+                    folder: "lms/avatar", 
+                    width: 250, 
+                    height: 250, 
+                    gravity: "face", 
+                    crop: "fill" 
+                });
 
                 console.log(result);
 
-
-
                 if (result) {
-                    user.avatar.publicId = result.public_id,
-                        user.avatar.secureUrl = result.secure_url
+                    user.avatar.publicId = result.public_id;
+                    user.avatar.secureUrl = result.secure_url;
                 }
 
-                fs.rm(req.file.path, { recursive: true })
+                // Clean up uploaded file
+                fs.rm(req.file.path, { recursive: true });
 
             } catch (error) {
-                return next(new AppError("No file uploaded. Please select a file.", 401))
+                console.log("Image upload error:", error);
+                // Continue with default avatar if image upload fails
+                // Don't return error, just log it
             }
         }
 
@@ -68,11 +80,11 @@ const register = async function (req, res, next, role = "user") {
             return next(new AppError("Failed to generate authentication token. Please try again.", 500))
         }
 
-        res.cookie("token", token, { expires: new Date(Date.now() + (60 * 60 * 24)), httpOnly: true })
+        res.cookie("token", token, { expires: new Date(Date.now() + (60 * 60 * 24 * 1000)), httpOnly: true })
 
         return res.status(200).json({
             success: true,
-            message: "user successfully registerd",
+            message: "user successfully registered",
             user: userData,
             token: token
         })
@@ -102,7 +114,7 @@ const login = async function (req, res, next) {
             return next(new AppError("Failed to generate authentication token. Please try again.", 500))
         }
 
-        res.cookie("token", token, { expires: new Date(Date.now() + (60 * 60 * 24)), httpOnly: true })
+        res.cookie("token", token, { expires: new Date(Date.now() + (60 * 60 * 24 * 1000)), httpOnly: true })
 
         user.password = undefined
 
@@ -126,18 +138,13 @@ const getMyProfile = async function (req, res, next) {
         }
 
         const user = await UserModel.findById(userId).populate({
-            path: 'subscriptions', // Pehle 'subscriptions' ko populate karo
+            path: 'subscriptions',
             populate: {
-                path: 'createdBy', // Fir har subscription ke andar 'createdBy' ko populate karo
-                select: 'name'     // Aur sirf naam select karo
+                path: 'createdBy',
+                select: 'name'
             }
         });
         
-
-        if (!user) {
-            return next(new AppError("User not found", 404));
-        }
-
         if (!user) {
             return next(new AppError("User not found", 404));
         }
@@ -150,7 +157,6 @@ const getMyProfile = async function (req, res, next) {
     } catch (error) {
         return next(error)
     }
-
 }
 
 const logout = function (req, res, next) {
@@ -163,7 +169,6 @@ const logout = function (req, res, next) {
     } catch (error) {
         return next(error)
     }
-
 }
 
 const forgotPassword = async function (req, res, next) {
@@ -180,9 +185,7 @@ const forgotPassword = async function (req, res, next) {
 
         await user.save()
 
-        // In your backend forgotPassword controller
         const forgotPasswordUrl = `${process.env.FRONTEND_URL}/reset-password/${forgotPasswordToken}`
-        // Changed from: /forgotPassword/ to: /reset-password/
 
         const subject = `Forgot Password Request`;
         const message = forgotPasswordMessage(forgotPasswordUrl)
@@ -209,23 +212,22 @@ const forgotPassword = async function (req, res, next) {
 }
 
 const resetPassword = async function (req, res, next) {
-
     try {
         const { resetToken } = req.params;
         const { newPassword } = req.body;
 
         const newToken = crypto.createHash('sha256').update(resetToken).digest('hex')
 
-        const user = await UserModel.findOne({ forgotPasswordToken: newToken, forgotPasswordTokenExpiry: { $gt: Date.now() } })
-        console.log(user);
+        const user = await UserModel.findOne({ 
+            forgotPasswordToken: newToken, 
+            forgotPasswordTokenExpiry: { $gt: Date.now() } 
+        })
 
         if (!user) {
             return next(new AppError("invalid token", 401));
         }
 
         user.password = newPassword;
-        console.log(user.password);
-
         user.forgotPasswordToken = undefined;
         user.forgotPasswordTokenExpiry = undefined;
 
@@ -238,15 +240,11 @@ const resetPassword = async function (req, res, next) {
     } catch (error) {
         return next(error)
     }
-
-
-
 }
 
 const changePassword = async function (req, res, next) {
     try {
         const { id } = req.user;
-
         const { oldPassword, newPassword } = req.body
 
         if (!oldPassword || !newPassword) {
@@ -254,10 +252,9 @@ const changePassword = async function (req, res, next) {
         }
 
         const user = await UserModel.findById(id).select("+password")
-        console.log(user);
 
         if (!user) {
-            return next(new AppError("plese login to change password", 401))
+            return next(new AppError("please login to change password", 401))
         }
 
         const isPasswordValid = await user.comparePassword(oldPassword)
@@ -278,7 +275,6 @@ const changePassword = async function (req, res, next) {
     } catch (error) {
         return next(error)
     }
-
 }
 
 const updateProfile = async function (req, res, next) {
@@ -293,7 +289,19 @@ const updateProfile = async function (req, res, next) {
             return next(new AppError("User not found", 401));
         }
 
-        if (name) user.name = name;
+        // If name is being updated and user has default avatar, update the avatar too
+        const isDefaultAvatar = user.avatar.publicId.startsWith('default_');
+        
+        if (name) {
+            user.name = name;
+            
+            // Update default avatar if user is using default one
+            if (isDefaultAvatar) {
+                const firstChar = name.charAt(0).toUpperCase();
+                user.avatar.secureUrl = `https://ui-avatars.com/api/?name=${firstChar}&background=3b82f6&color=ffffff&size=250&font-size=0.6&bold=true&format=png`;
+            }
+        }
+        
         if (gender) user.gender = gender;
         if (contactNumber) user.contactNumber = contactNumber;
 
@@ -305,20 +313,29 @@ const updateProfile = async function (req, res, next) {
             if (pincode) user.address.pincode = pincode;
         }
 
-
         if (req.file) {
             console.log(user.avatar.publicId);
 
-            await cloudinary.v2.uploader.destroy(user.avatar.publicId)
+            // Only destroy cloudinary image if it's not a default avatar
+            if (!isDefaultAvatar) {
+                await cloudinary.v2.uploader.destroy(user.avatar.publicId);
+            }
+            
             try {
-                const result = await cloudinary.v2.uploader.upload(req.file.path, { folder: "lms", width: 250, height: 250, gravity: "face", crop: "fill" })
+                const result = await cloudinary.v2.uploader.upload(req.file.path, { 
+                    folder: "lms", 
+                    width: 250, 
+                    height: 250, 
+                    gravity: "face", 
+                    crop: "fill" 
+                });
 
                 if (result) {
-                    user.avatar.publicId = result.public_id,
-                        user.avatar.secureUrl = result.secure_url
+                    user.avatar.publicId = result.public_id;
+                    user.avatar.secureUrl = result.secure_url;
                 }
 
-                fs.rm(req.file.path, { recursive: true })
+                fs.rm(req.file.path, { recursive: true });
 
             } catch (error) {
                 next(new AppError(error || "No file uploaded. Please select a file.", 401))
@@ -342,34 +359,27 @@ export const adminRegister = function (req, res, next) {
     register(req, res, next, "admin")
 }
 
-
-
-// Get all enrolled students with their course details
-
 const getEnrolledStudents = async function (req, res, next) {
     try {
         console.log('🔍 Fetching enrolled students...');
 
-        // Query for users with role 'user' and non-empty subscriptions array
         const enrolledUsers = await UserModel.find({
             role: 'user',
             subscriptions: { $exists: true, $not: { $size: 0 } }
         })
-        .select('name email subscriptions') // Only select necessary user fields
+        .select('name email subscriptions')
         .populate({
             path: 'subscriptions',
-            select: 'title category price', // Only select required course fields
-            match: { _id: { $exists: true } } // Ensure valid course references
+            select: 'title category price',
+            match: { _id: { $exists: true } }
         })
-        .lean(); // Use lean() for better performance since we're only reading
+        .lean();
 
         console.log(`📊 Found ${enrolledUsers.length} users with subscriptions`);
 
-        // Transform the data into the required flat array structure
         const enrollmentRecords = [];
 
         enrolledUsers.forEach(user => {
-            // Handle cases where subscriptions might have null/invalid references
             const validSubscriptions = user.subscriptions.filter(course => course !== null);
             
             validSubscriptions.forEach(course => {
@@ -389,7 +399,6 @@ const getEnrolledStudents = async function (req, res, next) {
 
         console.log(`✅ Generated ${enrollmentRecords.length} enrollment records`);
 
-        // Check if no enrolled students found
         if (enrollmentRecords.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -397,7 +406,6 @@ const getEnrolledStudents = async function (req, res, next) {
             });
         }
 
-        // Return successful response with enrollment data
         return res.status(200).json({
             success: true,
             message: `Found ${enrollmentRecords.length} enrollment records`,
@@ -411,8 +419,6 @@ const getEnrolledStudents = async function (req, res, next) {
         return next(error);
     }
 };
-
-
 
 export {
     register,

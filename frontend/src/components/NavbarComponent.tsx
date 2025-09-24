@@ -20,7 +20,7 @@ import { BorderBeam } from "../components/magicui/border-beam";
 export function NavbarComponent() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoggedIn, data: user } = useSelector((state:any) => state.auth);
+  const { isLoggedIn, data: user } = useSelector((state) => state.auth);
 
   const navItems = [
     { name: "Courses", link: "/all-courses" },
@@ -30,25 +30,22 @@ export function NavbarComponent() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const logoutLock = useRef(false); // Changed to false initially
+  const [imageError, setImageError] = useState({});
+  const dropdownRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+  const logoutLock = useRef(false);
 
-  // Stable handleLogout - Fixed for regular action creators
+  // Stable handleLogout
   const handleLogout = useCallback(() => {
-    if (logoutLock.current) return; // Prevent double logout calls
+    if (logoutLock.current) return;
     
     try {
       logoutLock.current = true;
-      console.log("Logout triggered!"); // Debug
+      console.log("Logout triggered!");
       
-      // Dispatch logout action (regular action, not async thunk)
       dispatch(logout());
-      
-      // Show success message
       toast.success("Logged out successfully!");
       
-      // Close dropdowns and navigate
       setIsProfileDropdownOpen(false);
       setIsMobileMenuOpen(false);
       navigate("/");
@@ -57,7 +54,6 @@ export function NavbarComponent() {
       console.error("Logout error:", error);
       toast.error("Logout failed. Please try again.");
     } finally {
-      // Reset lock after a short delay
       setTimeout(() => { 
         logoutLock.current = false; 
       }, 1000);
@@ -115,7 +111,7 @@ export function NavbarComponent() {
   // Close dropdowns when screen size changes
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) { // md breakpoint
+      if (window.innerWidth >= 768) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -132,103 +128,141 @@ export function NavbarComponent() {
       .map((word) => word.charAt(0))
       .join("")
       .toUpperCase()
-      .slice(0, 2);
+      .slice(0, 1);
+  };
+
+  // Get avatar URL - Fixed to handle different possible structures
+  const getAvatarUrl = (user:any) => {
+    if (!user) return null;
+    
+    if (user.avatar) {
+      if (user.avatar.secureUrl) {
+        return user.avatar.secureUrl;
+      }
+    }
+  };
+
+  // Handle image load error
+  const handleImageError = (userId:any) => {
+    console.log("Image failed to load for user:", userId);
+    setImageError(prev => ({
+      ...prev,
+      [userId]: true
+    }));
   };
 
   // Profile Avatar Component
-  const ProfileAvatar = ({ user, onClick, showDropdown = true }) => (
-    <div
-      className="relative"
-      ref={showDropdown ? dropdownRef : null}
-      onMouseEnter={showDropdown ? () => {
-        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-        setIsProfileDropdownOpen(true);
-      } : undefined}
-      onMouseLeave={showDropdown ? () => {
-        hoverTimeoutRef.current = setTimeout(() => setIsProfileDropdownOpen(false), 200);
-      } : undefined}
-    >
-      
-      <button
-        type="button"
-        onClick={onClick}
-        className="profile-avatar cursor-pointer flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium text-sm hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        aria-label="User profile menu"
+  const ProfileAvatar = ({ user, onClick, showDropdown = true, size = "default" }) => {
+    const avatarUrl = getAvatarUrl(user);
+    const hasImageError = imageError[user?.id] || imageError[user?._id];
+    const shouldShowImage = avatarUrl && !hasImageError;
+    
+    const sizeClasses = {
+      small: "w-8 h-8 text-xs",
+      default: "w-10 h-10 text-sm",
+      large: "w-12 h-12 text-base"
+    };
+
+    return (
+      <div
+        className="relative"
+        ref={showDropdown ? dropdownRef : null}
+        onMouseEnter={showDropdown ? () => {
+          if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+          setIsProfileDropdownOpen(true);
+        } : undefined}
+        onMouseLeave={showDropdown ? () => {
+          hoverTimeoutRef.current = setTimeout(() => setIsProfileDropdownOpen(false), 200);
+        } : undefined}
       >
-        {user?.avatar?.secureUrl ? (
-          <>
-          <BorderBeam />
-          <img
-            src={user.avatar.secureUrl}
-            alt={user.name}
-            className="w-full h-full rounded-full object-cover"
-          />
-          <BorderBeam />
-                    </>
-        ) : (
-          getUserInitials(user?.name)
-        )}
-      </button>
-      {showDropdown && isProfileDropdownOpen && (
-        <div
-          className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
-          onMouseEnter={() => hoverTimeoutRef.current && clearTimeout(hoverTimeoutRef.current)}
-          onMouseLeave={() => {
-            hoverTimeoutRef.current = setTimeout(() => setIsProfileDropdownOpen(false), 200);
-          }}
+        
+        <button
+          type="button"
+          onClick={onClick}
+          className={`profile-avatar cursor-pointer flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 relative overflow-hidden ${sizeClasses[size]}`}
+          aria-label="User profile menu"
         >
-          
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
-                {user?.avatar?.secureUrl ? (
-                  <img
-                    src={user.avatar.secureUrl}
-                    alt={user.name}
-                    className="w-10 h-10 rounded-full object-cover"
+          {shouldShowImage ? (
+            <>
+              <BorderBeam />
+              <img
+                src={avatarUrl}
+                alt={user?.name || "User"}
+                className="w-full h-full rounded-full object-cover"
+                onError={() => handleImageError(user?.id || user?._id)}
+                onLoad={() => {
+                  // Clear any previous error state when image loads successfully
+                  setImageError(prev => {
+                    const newState = { ...prev };
+                    delete newState[user?.id];
+                    delete newState[user?._id];
+                    return newState;
+                  });
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <BorderBeam />
+              <span>{getUserInitials(user?.name)}</span>
+            </>
+          )}
+        </button>
+
+        {showDropdown && isProfileDropdownOpen && (
+          <div
+            className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
+            onMouseEnter={() => hoverTimeoutRef.current && clearTimeout(hoverTimeoutRef.current)}
+            onMouseLeave={() => {
+              hoverTimeoutRef.current = setTimeout(() => setIsProfileDropdownOpen(false), 200);
+            }}
+          >
+            
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <ProfileAvatar 
+                    user={user} 
+                    showDropdown={false} 
+                    onClick={() => {}}
+                    size="default"
                   />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
-                    {getUserInitials(user?.name)}
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                  Hey, {user?.name || "User"}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {user?.email}
-                </p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    Hey, {user?.name || "User"}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {user?.email}
+                  </p>
+                </div>
               </div>
             </div>
+                      
+            <div className="py-1">
+              {profileMenuItems.map((item, index) => (
+                <div key={index} className="relative">
+                  <BorderBeam />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      item.action();
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-3 transition-colors duration-150 cursor-pointer ${item.className || ""}`}
+                  >
+                    <span className="text-base">{item.icon}</span>
+                    <span>{item.name}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-                    
-          <div className="py-1">
-            {profileMenuItems.map((item, index) => (
-              <>
-              <BorderBeam />
-              <button
-                key={index}
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  item.action();
-                }}
-                className={`w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-3 transition-colors duration-150 cursor-pointer ${item.className || ""}`}
-              >
-                <span className="text-base">{item.icon}</span>
-                <span>{item.name}</span>
-              </button>
-              <BorderBeam/>
-            </>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="relative w-full">
@@ -257,7 +291,7 @@ export function NavbarComponent() {
           </div>
         </NavBody>
 
-        {/* Mobile Navigation - Fixed: Removed duplicate MobileNav wrapper */}
+        {/* Mobile Navigation */}
         <MobileNav>
           <MobileNavHeader>
             <NavbarLogo />
@@ -266,7 +300,8 @@ export function NavbarComponent() {
                 <ProfileAvatar
                   user={user}
                   onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
-                  showDropdown={false} // Don't show dropdown on mobile header
+                  showDropdown={false}
+                  size="small"
                 />
               )}
               <MobileNavToggle
@@ -293,17 +328,12 @@ export function NavbarComponent() {
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                 {/* Mobile User Info */}
                 <div className="flex items-center space-x-3 px-2 py-3 mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  {user?.avatar?.secureUrl ? (
-                    <img
-                      src={user.avatar.secureUrl}
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                      {getUserInitials(user?.name)}
-                    </div>
-                  )}
+                  <ProfileAvatar 
+                    user={user} 
+                    showDropdown={false} 
+                    onClick={() => {}}
+                    size="large"
+                  />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {user?.name || "User"}
@@ -311,6 +341,12 @@ export function NavbarComponent() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {user?.email}
                     </p>
+                    {/* Debug info - remove in production */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <p className="text-xs text-green-500 mt-1">
+                        ID: {user?.id || user?._id || 'No ID'}
+                      </p>
+                    )}
                   </div>
                 </div>
                 {/* Mobile Menu Items */}
@@ -321,7 +357,7 @@ export function NavbarComponent() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log(`Mobile menu item clicked: ${item.name}`); // Debug
+                      console.log(`Mobile menu item clicked: ${item.name}`);
                       item.action();
                       setIsMobileMenuOpen(false);
                     }}

@@ -46,7 +46,6 @@ const initialState: AuthState = {
     loading: false,
 };
 
-
 // --- API Calls (Async Thunks) ---
 // In thunks mein koi khaas badlaav nahi hai, bas error handling ko behtar kiya hai
 
@@ -205,7 +204,6 @@ const authSlice = createSlice({
             })
     },
 });
-
 
 // Actions aur Reducer ko export karna
 export const { login, logout, clearLoading } = authSlice.actions;

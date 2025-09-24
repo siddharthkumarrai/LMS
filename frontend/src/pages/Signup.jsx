@@ -39,11 +39,10 @@ const VALIDATION_RULES = {
     }
   },
   avatar: {
-    required: true,
+    required: false, // Made optional
     maxSize: 5 * 1024 * 1024, // 5MB
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
     messages: {
-      required: 'Profile picture is required',
       maxSize: 'Image size should be less than 5MB',
       type: 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)'
     }
@@ -62,12 +61,12 @@ const validateField = (name, value, file = null) => {
   const rules = VALIDATION_RULES[name];
   if (!rules) return '';
 
-  // Required validation
+  // Required validation (skip for optional avatar)
   if (rules.required && !value && !file) {
     return rules.messages.required;
   }
 
-  // File-specific validations
+  // File-specific validations (only if file is provided)
   if (name === 'avatar' && file) {
     if (rules.maxSize && file.size > rules.maxSize) {
       return rules.messages.maxSize;
@@ -122,10 +121,17 @@ const Signup = () => {
   );
 
   const isFormValid = useMemo(() => {
-    const hasAllRequiredFields = formData.name && formData.email && 
-                                  formData.password && formData.avatar;
+    // Only check required fields: name, email, password (avatar is optional)
+    const hasAllRequiredFields = formData.name && formData.email && formData.password;
     return hasAllRequiredFields && !hasErrors;
   }, [formData, hasErrors]);
+
+  // Generate preview based on name for fallback avatar
+  const fallbackAvatar = useMemo(() => {
+    if (!formData.name) return '';
+    const firstChar = formData.name.charAt(0).toUpperCase();
+    return `https://ui-avatars.com/api/?name=${firstChar}&background=3b82f6&color=ffffff&size=200&font-size=0.6&bold=true&format=png`;
+  }, [formData.name]);
 
   // Validate all fields
   const validateForm = useCallback(() => {
@@ -133,7 +139,12 @@ const Signup = () => {
     
     Object.keys(VALIDATION_RULES).forEach(field => {
       if (field === 'avatar') {
-        newErrors[field] = validateField(field, null, formData[field]);
+        // Only validate avatar if a file is provided
+        if (formData[field]) {
+          newErrors[field] = validateField(field, null, formData[field]);
+        } else {
+          newErrors[field] = ''; // No error for optional field
+        }
       } else {
         newErrors[field] = validateField(field, formData[field]);
       }
@@ -169,7 +180,13 @@ const Signup = () => {
   const handleImageUpload = useCallback((e) => {
     const file = e.target.files?.[0];
     
-    if (!file) return;
+    if (!file) {
+      // Clear image if no file selected
+      setFormData(prev => ({ ...prev, avatar: null }));
+      setPreviewImage('');
+      setErrors(prev => ({ ...prev, avatar: '' }));
+      return;
+    }
 
     // Validate file
     const error = validateField('avatar', null, file);
@@ -193,6 +210,17 @@ const Signup = () => {
     reader.readAsDataURL(file);
   }, []);
 
+  // Remove uploaded image
+  const handleRemoveImage = useCallback(() => {
+    setFormData(prev => ({ ...prev, avatar: null }));
+    setPreviewImage('');
+    setErrors(prev => ({ ...prev, avatar: '' }));
+    
+    // Reset file input
+    const fileInput = document.getElementById('image_uploads');
+    if (fileInput) fileInput.value = '';
+  }, []);
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -200,32 +228,38 @@ const Signup = () => {
     // Prevent double submission
     if (isSubmitting) return;
 
-    // Mark all fields as touched
+    // Mark required fields as touched (avatar is optional)
     setTouched({
       name: true,
       email: true,
       password: true,
-      avatar: true
+      avatar: !!formData.avatar // Only mark as touched if file exists
     });
 
     // Validate form
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
-    // Check for errors
-    const errorMessages = Object.values(validationErrors).filter(Boolean);
-    if (errorMessages.length > 0) {
-      toast.error(errorMessages[0]);
+    // Check for errors in required fields only
+    const requiredFieldErrors = Object.entries(validationErrors)
+      .filter(([key, error]) => key !== 'avatar' && error !== '') // Exclude avatar from required checks
+      .concat(formData.avatar && validationErrors.avatar ? [['avatar', validationErrors.avatar]] : []);
+    
+    if (requiredFieldErrors.length > 0) {
+      toast.error(requiredFieldErrors[0][1]);
       return;
     }
 
     // Prepare form data
     const formDataToSend = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null) {
-        formDataToSend.append(key, value);
-      }
-    });
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('password', formData.password);
+    
+    // Only append avatar if it exists
+    if (formData.avatar) {
+      formDataToSend.append('avatar', formData.avatar);
+    }
 
     // Submit form
     setIsSubmitting(true);
@@ -284,10 +318,10 @@ const Signup = () => {
         </p>
 
         <form className="my-8" onSubmit={handleSubmit} noValidate>
-          {/* Avatar Upload Section */}
+          {/* Avatar Upload Section - Optional */}
           <div className="mb-6 flex flex-col items-center">
             <Label htmlFor="image_uploads" className="mb-2">
-              Profile Picture *
+              Profile Picture <span className="text-xs text-gray-500">(Optional)</span>
             </Label>
             <div className="relative">
               <label 
@@ -311,6 +345,20 @@ const Signup = () => {
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
+                    </div>
+                  </div>
+                ) : fallbackAvatar && formData.name ? (
+                  <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 group-hover:border-blue-500 transition-colors duration-300">
+                    <img
+                      className="w-full h-full object-cover"
+                      src={fallbackAvatar}
+                      alt="Default avatar"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <p className="text-xs text-white mt-1">Upload</p>
                     </div>
                   </div>
                 ) : (
@@ -340,9 +388,26 @@ const Signup = () => {
                 accept="image/*"
                 disabled={isSubmitting}
               />
+              {(previewImage || fallbackAvatar) && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors duration-200"
+                  aria-label="Remove image"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-              {previewImage ? 'Click to change your profile picture' : 'Click to upload your profile picture'}
+              {previewImage 
+                ? 'Click to change or remove your profile picture' 
+                : formData.name 
+                  ? 'We\'ll use your name initial if no image is uploaded'
+                  : 'Upload a profile picture or we\'ll create one from your name'
+              }
             </p>
             {errors.avatar && touched.avatar && (
               <p className="text-xs text-red-500 mt-1 text-center" role="alert">

@@ -44,35 +44,35 @@ const useResponsive = () => {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    quote: "I am grateful to PW Skills for helping me transition into the role of a Web Developer Internship at CodeSoft. The course curriculum was well-structured and aligned perfectly wit...",
+    quote: "I am grateful to SkillsLMS for helping me transition into the role of a Web Developer Internship at CodeSoft. The course curriculum was well-structured and aligned perfectly wit...",
     name: "Devesh Kumar Meena",
     course: "Web Developer, Codesoft",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face"
   },
   {
     id: 2,
-    quote: "The training I received at PW Skills proved instrumental for my role as a Technical Analyst at Mindtree. The comprehensive curriculum and hands-on approach were exactly what I needed...",
+    quote: "The training I received at SkillsLMS proved instrumental for my role as a Technical Analyst at Mindtree. The comprehensive curriculum and hands-on approach were exactly what I needed...",
     name: "Pallavee Maurya",
     course: "Technical Analyst, Mindtree",
     image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face"
   },
   {
     id: 3,
-    quote: "PW Skills completely transformed my understanding of data science. The practical projects and expert mentorship helped me secure a position as a Data Scientist at a leading company...",
+    quote: "SkillsLMS completely transformed my understanding of data science. The practical projects and expert mentorship helped me secure a position as a Data Scientist at a leading company...",
     name: "Rahul Sharma",
     course: "Data Scientist, TCS",
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face"
   },
   {
     id: 4,
-    quote: "From zero programming knowledge to landing my first job as a Software Engineer. PW Skills made this incredible journey possible with their structured learning approach...",
+    quote: "From zero programming knowledge to landing my first job as a Software Engineer. SkillsLMS made this incredible journey possible with their structured learning approach...",
     name: "Priya Singh",
     course: "Software Engineer, Wipro",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face"
   },
   {
     id: 5,
-    quote: "The Full Stack Development course at PW Skills was exactly what I needed to transition into tech. The hands-on projects and mentorship were outstanding...",
+    quote: "The Full Stack Development course at SkillsLMS was exactly what I needed to transition into tech. The hands-on projects and mentorship were outstanding...",
     name: "Amit Kumar",
     course: "Full Stack Developer, Infosys",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face"

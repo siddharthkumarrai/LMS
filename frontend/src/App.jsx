@@ -40,6 +40,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage ';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { verifySession } from './redux/features/auth/authSlice'; 
+import AuthSuccess from './pages/AuthSuccess';
 
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/auth-success" element={<AuthSuccess />} />
       <Route path="/course/:courseId/player" element={<CoursePlayer />} />
       {/* 1. Public Routes (jinke upar Navbar chahiye) */}
       <Route element={<HomeLayout />}>
