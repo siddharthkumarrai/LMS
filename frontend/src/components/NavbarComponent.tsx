@@ -20,12 +20,12 @@ import { BorderBeam } from "../components/magicui/border-beam";
 export function NavbarComponent() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoggedIn, data: user } = useSelector((state:any) => state.auth);
-  
+  const { isLoggedIn, data: user } = useSelector((state: any) => state.auth);
+
   // Safe avatar access with multiple fallback paths
   const getAvatarUrl = (user) => {
     if (!user) return null;
-    
+
     // Try different possible avatar paths
     if (user?.avatar?.secureUrl) return user.avatar.secureUrl;
     if (user?.avatar?.secure_url) return user.avatar.secure_url;
@@ -34,7 +34,7 @@ export function NavbarComponent() {
     if (user?.profileImage) return user.profileImage;
     if (user?.image) return user.image;
     if (user?.photo) return user.photo;
-    
+
     return null;
   };
 
@@ -63,24 +63,24 @@ export function NavbarComponent() {
   // Stable handleLogout - Fixed for regular action creators
   const handleLogout = useCallback(() => {
     if (logoutLock.current) return;
-    
+
     try {
       logoutLock.current = true;
       console.log("Logout triggered!");
-      
+
       dispatch(logout());
       toast.success("Logged out successfully!");
-      
+
       setIsProfileDropdownOpen(false);
       setIsMobileMenuOpen(false);
       navigate("/");
-      
+
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Logout failed. Please try again.");
     } finally {
-      setTimeout(() => { 
-        logoutLock.current = false; 
+      setTimeout(() => {
+        logoutLock.current = false;
       }, 1000);
     }
   }, [dispatch, navigate]);
@@ -140,7 +140,7 @@ export function NavbarComponent() {
         setIsMobileMenuOpen(false);
       }
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -176,7 +176,6 @@ export function NavbarComponent() {
       } : undefined}
     >
       <div className="relative">
-        <BorderBeam />
         <button
           type="button"
           onClick={onClick}
@@ -184,13 +183,15 @@ export function NavbarComponent() {
           aria-label="User profile menu"
         >
           {avatarUrl && !imageError ? (
-            <img
-              src={avatarUrl}
-              alt={user?.name || "User"}
-              className="w-full h-full rounded-full object-cover"
-              onError={handleImageError}
-              onLoad={() => console.log("Image loaded successfully")}
-            />
+            <>
+              <img
+                src={avatarUrl}
+                alt={user?.name || "User"}
+                className="w-full h-full rounded-full object-cover"
+                onError={handleImageError}
+                onLoad={() => console.log("Image loaded successfully")}
+              />
+            </>
           ) : (
             <span className="font-medium text-sm">
               {getUserInitials(user?.name)}
@@ -198,7 +199,7 @@ export function NavbarComponent() {
           )}
         </button>
       </div>
-      
+
       {showDropdown && isProfileDropdownOpen && (
         <div
           className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50"
@@ -210,15 +211,18 @@ export function NavbarComponent() {
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0 relative">
-                <BorderBeam />
+
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm overflow-hidden">
                   {avatarUrl && !imageError ? (
-                    <img
-                      src={avatarUrl}
-                      alt={user?.name || "User"}
-                      className="w-full h-full rounded-full object-cover"
-                      onError={handleImageError}
-                    />
+                    <>
+
+                      <img
+                        src={avatarUrl}
+                        alt={user?.name || "User"}
+                        className="w-full h-full rounded-full object-cover"
+                        onError={handleImageError}
+                      />
+                    </>
                   ) : (
                     <span className="font-medium text-sm">
                       {getUserInitials(user?.name)}
@@ -236,11 +240,11 @@ export function NavbarComponent() {
               </div>
             </div>
           </div>
-                    
+
           <div className="py-1">
             {profileMenuItems.map((item, index) => (
               <div key={index} className="relative">
-                <BorderBeam />
+
                 <button
                   type="button"
                   onClick={(e) => {
@@ -325,15 +329,16 @@ export function NavbarComponent() {
                 {/* Mobile User Info */}
                 <div className="flex items-center space-x-3 px-2 py-3 mb-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="relative">
-                    <BorderBeam />
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium overflow-hidden">
                       {avatarUrl && !imageError ? (
-                        <img
-                          src={avatarUrl}
-                          alt={user?.name || "User"}
-                          className="w-full h-full rounded-full object-cover"
-                          onError={handleImageError}
-                        />
+                        <>
+                          <img
+                            src={avatarUrl}
+                            alt={user?.name || "User"}
+                            className="w-full h-full rounded-full object-cover"
+                            onError={handleImageError}
+                          />
+                        </>
                       ) : (
                         <span className="font-medium">
                           {getUserInitials(user?.name)}
@@ -352,27 +357,28 @@ export function NavbarComponent() {
                 </div>
                 {/* Mobile Menu Items */}
                 {profileMenuItems.map((item, index) => (
-                  <div key={`mobile-profile-${index}`} className="relative">
-                    <BorderBeam />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log(`Mobile menu item clicked: ${item.name}`);
-                        item.action();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`w-full text-left py-3 text-sm text-gray-700 dark:text-gray-300 flex items-center space-x-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-md px-2 ${item.className || ""}`}
-                      disabled={item.name === "Logout" && logoutLock.current}
-                    >
-                      <span className="text-base">{item.icon}</span>
-                      <span>{item.name}</span>
-                      {item.name === "Logout" && logoutLock.current && (
-                        <span className="ml-auto text-xs text-gray-400">...</span>
-                      )}
-                    </button>
-                  </div>
+                  <>
+                    <div key={`mobile-profile-${index}`} className="relative">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log(`Mobile menu item clicked: ${item.name}`);
+                          item.action();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full text-left py-3 text-sm text-gray-700 dark:text-gray-300 flex items-center space-x-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-md px-2 ${item.className || ""}`}
+                        disabled={item.name === "Logout" && logoutLock.current}
+                      >
+                        <span className="text-base">{item.icon}</span>
+                        <span>{item.name}</span>
+                        {item.name === "Logout" && logoutLock.current && (
+                          <span className="ml-auto text-xs text-gray-400">...</span>
+                        )}
+                      </button>
+                    </div>
+                  </>
                 ))}
               </div>
             ) : (
