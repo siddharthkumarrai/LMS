@@ -234,15 +234,15 @@ export const NavbarLogo = () => {
   return (
     <a
       href="/"
-      className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
+      className="relative round rounded-full z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
       <img
-        src="https://assets.aceternity.com/logo-dark.png"
+        src="https://res.cloudinary.com/dnknslaku/image/upload/v1758725959/lms/avatar/logo/Gemini_Generated_Image_k0jvh0k0jvh0k0jv_saowq8.png"
         alt="logo"
         width={30}
         height={30}
       />
-      <span className="font-medium text-black dark:text-white">Startup</span>
+      <span className="font-medium text-black dark:text-white"></span>
     </a>
   );
 };

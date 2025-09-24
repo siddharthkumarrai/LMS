@@ -424,7 +424,7 @@ const PWSkillsFooter: React.FC = () => {
             transition={{ duration: 0.8, delay: 1.2 }}
           >
             <p className="text-white/80 text-sm drop-shadow-sm">
-              © 2024 SkillsLMS. All rights reserved.
+              © 2025 SkillsLMS. All rights reserved.
             </p>
             
             <div className="flex flex-wrap items-center gap-6">
